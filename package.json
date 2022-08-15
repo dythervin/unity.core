@@ -1,0 +1,21 @@
+{
+  "name": "com.dythervin.core",
+  "version": "0.0.1",
+  "unity": "2020.3",
+  "unityRelease": "0f1",
+  "keywords": [],
+  "author": {
+    "name": "Dythervin",
+    "email": "dythervin@gmail.com",
+    "url": "https://github.com/dythervin"
+  },
+  "type": "module",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@dythervin"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com:dythervin/unity.core.git",
+    "directory": "com.dythervin.core"
+  }
+}
