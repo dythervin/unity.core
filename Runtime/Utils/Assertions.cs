@@ -19,7 +19,7 @@ namespace Dythervin.Core.Utils
             if (!ThreadExt.IsMain)
                 throw new Exception("Can be called on main thread only");
         }
-        
+
         public static void AssertIsNotQuitting()
         {
             if (ApplicationExt.IsQuitting)
