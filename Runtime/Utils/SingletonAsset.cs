@@ -42,6 +42,15 @@ namespace Dythervin.Core.Utils
             }
         }
 
+        internal static T InstanceChecked
+        {
+            get
+            {
+                Load();
+                return Instance;
+            }
+        }
+
         private static string GetPath
         {
             get
@@ -53,19 +62,26 @@ namespace Dythervin.Core.Utils
             }
         }
 
-        private static T InstanceAtPath => Resources.Load<T>(FullResourcesPath); // ReSharper disable Unity.PerformanceAnalysis
+        private static T LoadAtPath => Resources.Load<T>(FullResourcesPath); // ReSharper disable Unity.PerformanceAnalysis
 
         protected static void TryLoad()
         {
             if (_loaded)
                 return;
 
+            Load();
+        }
+
+        internal static void Load()
+        {
 #if UNITY_EDITOR
             if (!File.Exists(FullPath))
             {
                 var instance = CreateInstance<T>();
                 if (!Directory.Exists(AssetFolderPath))
                     Directory.CreateDirectory(new DirectoryInfo(AssetFolderPath).FullName);
+                if (instance == null)
+                    return;
                 AssetDatabase.CreateAsset(instance, FullPath);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
@@ -74,26 +90,13 @@ namespace Dythervin.Core.Utils
                 return;
             }
 #endif
-            SetInstance(InstanceAtPath);
+            SetInstance(LoadAtPath);
         }
 
         protected virtual void OnCreated() { }
 
         protected void OnEnable()
         {
-#if UNITY_EDITOR
-            if (InstanceAtPath != null)
-            {
-                string currentPath = AssetDatabase.GetAssetPath(this);
-                if (currentPath != null && currentPath != FullPath)
-                {
-                    EditorUtility.CopySerialized(this, InstanceAtPath);
-                    AssetDatabase.DeleteAsset(currentPath);
-                    return;
-                }
-            }
-#endif
-
             if (_instance == this)
                 return;
 
@@ -105,12 +108,28 @@ namespace Dythervin.Core.Utils
             else
             {
 #if UNITY_EDITOR
-                if (!Application.isPlaying)
-                    DestroyImmediate(this);
+                if (EditorUtility.IsPersistent(_instance))
+                {
+                    string currentPath = AssetDatabase.GetAssetPath(this);
+                    if (string.IsNullOrEmpty(currentPath) || currentPath == FullPath)
+                    {
+                        EditorUtility.CopySerialized(_instance, this);
+                        AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(_instance));
+                    }
+                    else
+                    {
+                        EditorUtility.CopySerialized(this, _instance);
+                        if (EditorUtility.IsPersistent(this))
+                            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(this));
+                        else
+                            DestroyImmediate(this);
+                    }
+                }
                 else
+                {
+                    DestroyImmediate(_instance);
+                }
 #endif
-                    Destroy(this);
-                Debug.LogWarning($"Trying to instantiate second instance of {typeof(T)}");
             }
         }
 
@@ -144,18 +163,20 @@ namespace Dythervin.Core.Utils
 
 #if UNITY_EDITOR
         [DidReloadScripts]
+        [MenuItem("Tools/SingletonAssets")]
 #if ODIN_INSPECTOR
         [Button]
 #endif
         private static void Resolve()
         {
-            Instance.singletons = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes().Where(type
-                => type.Instantiatable()
-                   && !type.IsEnum
-                   && !type.IsPrimitive
-                   && type != typeof(SingletonAsset)
-                   && typeof(SingletonAsset<>).IsSubclassOfRawGeneric(type))).Select(type
-                => (SO)type.GetProperty(nameof(Instance), BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)?.GetValue(null)).ToArray();
+            InstanceChecked.singletons = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes().Where(type
+                    => type.Instantiatable()
+                       && !type.IsEnum
+                       && !type.IsPrimitive
+                       && type != typeof(SingletonAsset)
+                       && typeof(SingletonAsset<>).IsSubclassOfRawGeneric(type))).Select(type
+                    => (SO)type.GetProperty(nameof(InstanceChecked), BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)?.GetValue(null))
+                .ToArray();
 
             Instance.Dirty();
         }
