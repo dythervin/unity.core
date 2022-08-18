@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dythervin.Core.Extensions;
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
@@ -142,7 +144,9 @@ namespace Dythervin.Core.Utils
 
 #if UNITY_EDITOR
         [DidReloadScripts]
+#if ODIN_INSPECTOR
         [Button]
+#endif
         private static void Resolve()
         {
             Instance.singletons = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes().Where(type
