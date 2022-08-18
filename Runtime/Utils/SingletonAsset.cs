@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dythervin.Core.Extensions;
+using Sirenix.OdinInspector;
 using UnityEditor;
+using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -18,6 +20,12 @@ namespace Dythervin.Core.Utils
     {
         private static bool _loaded;
         private static T _instance;
+
+        private static readonly string Path = GetPath;
+        private static readonly string Name = $"{typeof(T).Name}";
+        private static readonly string AssetFolderPath = $"Assets/Resources/{Path}";
+        private static readonly string FullPath = $"{AssetFolderPath}/{Name}.asset";
+        private static readonly string FullResourcesPath = $"{Path}/{Name}";
 
         private bool _initialized;
 
@@ -43,14 +51,8 @@ namespace Dythervin.Core.Utils
             }
         }
 
-        private static readonly string Path = GetPath;
-        private static readonly string Name = $"{typeof(T).Name}";
-        private static readonly string AssetFolderPath = $"Assets/Resources/{Path}";
-        private static readonly string FullPath = $"{AssetFolderPath}/{Name}.asset";
-        private static readonly string FullResourcesPath = $"{Path}/{Name}";
-        private static T InstanceAtPath => Resources.Load<T>(FullResourcesPath);
+        private static T InstanceAtPath => Resources.Load<T>(FullResourcesPath); // ReSharper disable Unity.PerformanceAnalysis
 
-        // ReSharper disable Unity.PerformanceAnalysis
         protected static void TryLoad()
         {
             if (_loaded)
@@ -78,12 +80,15 @@ namespace Dythervin.Core.Utils
         protected void OnEnable()
         {
 #if UNITY_EDITOR
-            string currentPath = AssetDatabase.GetAssetPath(this);
-            if (currentPath != FullPath)
+            if (InstanceAtPath != null)
             {
-                EditorUtility.CopySerialized(this, InstanceAtPath);
-                AssetDatabase.DeleteAsset(currentPath);
-                return;
+                string currentPath = AssetDatabase.GetAssetPath(this);
+                if (currentPath != null && currentPath != FullPath)
+                {
+                    EditorUtility.CopySerialized(this, InstanceAtPath);
+                    AssetDatabase.DeleteAsset(currentPath);
+                    return;
+                }
             }
 #endif
 
@@ -108,7 +113,7 @@ namespace Dythervin.Core.Utils
         }
 
         /// <summary>
-        /// Called on OnEnable or before instance returned, depending on what happened first
+        ///     Called on OnEnable or before instance returned, depending on what happened first
         /// </summary>
         protected virtual void Init()
         {
@@ -136,7 +141,8 @@ namespace Dythervin.Core.Utils
         [Preserve] [SerializeField] private SO[] singletons;
 
 #if UNITY_EDITOR
-        [UnityEditor.Callbacks.DidReloadScripts]
+        [DidReloadScripts]
+        [Button]
         private static void Resolve()
         {
             Instance.singletons = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes().Where(type
@@ -156,20 +162,5 @@ namespace Dythervin.Core.Utils
         {
             TryLoad();
         }
-    }
-
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public class SingletonAssetAttribute : Attribute
-    {
-        public const string DefaultPath = "Global";
-        public readonly string resourcePath;
-
-        public SingletonAssetAttribute() : this(DefaultPath) { }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="resourcePath">Relative to resources folder</param>
-        public SingletonAssetAttribute(string resourcePath) => this.resourcePath = resourcePath;
     }
 }

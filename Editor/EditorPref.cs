@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Dythervin.Core.Utils;
 using UnityEditor;
 
 namespace Dythervin.Core.Editor
@@ -17,11 +18,26 @@ namespace Dythervin.Core.Editor
 
         protected EditorPref(string key, T defaultValue) : this(key)
         {
-            if (EditorPrefs.HasKey(key))
+            if (!ThreadExt.IsMain)
+            {
+                EditorApplication.delayCall += () =>
+                {
+                    if (!EditorPrefs.HasKey(key))
+                    {
+                        _value = defaultValue;
+                        // ReSharper disable once VirtualMemberCallInConstructor
+                        PersistentValue = defaultValue;
+                    }
+                };
                 return;
+            }
 
-            _value = defaultValue;
-            PersistentValue = defaultValue;
+            if (EditorPrefs.HasKey(key))
+            {
+                _value = defaultValue;
+                // ReSharper disable once VirtualMemberCallInConstructor
+                PersistentValue = defaultValue;
+            }
         }
 
         public T Value
@@ -106,4 +122,3 @@ namespace Dythervin.Core.Editor
         }
     }
 }
-
