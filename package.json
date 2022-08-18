@@ -9,5 +9,8 @@
     "name": "Dythervin",
     "email": "dythervin@gmail.com",
     "url": "https://github.com/dythervin"
+  },
+  "dependencies": {
+    "com.unity.mathematics": "1.2.6"
   }
 }
