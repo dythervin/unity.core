@@ -55,6 +55,18 @@ namespace Dythervin.Core.Extensions
             return PopLast(list, out _);
         }
 
+        public static bool TryPopLast<T>(this IList<T> list, out T value)
+        {
+            if (list.Count == 0)
+            {
+                value = default;
+                return false;
+            }
+
+            value = PopLast(list, out _);
+            return true;
+        }
+
 
         public static T PopLast<T>(this IList<T> list, out int index)
         {
