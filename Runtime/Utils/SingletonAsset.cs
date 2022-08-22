@@ -72,6 +72,7 @@ namespace Dythervin.Core.Utils
             Load();
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         internal static void Load()
         {
 #if UNITY_EDITOR
@@ -80,7 +81,7 @@ namespace Dythervin.Core.Utils
                 var instance = CreateInstance<T>();
                 if (!Directory.Exists(AssetFolderPath))
                     Directory.CreateDirectory(new DirectoryInfo(AssetFolderPath).FullName);
-                if (instance == null)
+                if (!instance)
                     return;
                 AssetDatabase.CreateAsset(instance, FullPath);
                 AssetDatabase.SaveAssets();
@@ -159,7 +160,12 @@ namespace Dythervin.Core.Utils
 
     public sealed class SingletonAsset : SingletonAsset<SingletonAsset>
     {
-        [Preserve] [SerializeField] private SO[] singletons;
+#if ODIN_INSPECTOR
+        [ReadOnly]
+#endif
+        [Preserve]
+        [SerializeField]
+        private SO[] singletons;
 
 #if UNITY_EDITOR
         [DidReloadScripts]
@@ -173,9 +179,9 @@ namespace Dythervin.Core.Utils
                     => type.Instantiatable()
                        && !type.IsEnum
                        && !type.IsPrimitive
-                       && type != typeof(SingletonAsset)
+                       && !type.IsGenericTypeDefinition
                        && typeof(SingletonAsset<>).IsSubclassOfRawGeneric(type))).Select(type
-                    => (SO)type.GetProperty(nameof(InstanceChecked), BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)?.GetValue(null))
+                    => (SO)type.GetProperty(nameof(InstanceChecked), BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).GetValue(null))
                 .ToArray();
 
             Instance.Dirty();
