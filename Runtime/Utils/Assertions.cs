@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using UnityEngine.Assertions;
 
 namespace Dythervin.Core.Utils
 {
@@ -24,6 +25,20 @@ namespace Dythervin.Core.Utils
         {
             if (ApplicationExt.IsQuitting)
                 throw new Exception("Cannot be called while quitting play mode");
+        }
+
+        public static void IsNotNull(object value, string message = "")
+        {
+            if (value == null || value is UnityEngine.Object obj && obj == null)
+                throw new AssertionException("Value is null", message);
+        }
+
+        public static void IsNull(object value, string message = "")
+        {
+            if (value == null || value is UnityEngine.Object obj && obj == null)
+                return;
+            
+            throw new AssertionException("Value is not null", message);
         }
     }
 }
