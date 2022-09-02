@@ -8,7 +8,6 @@ using Dythervin.Core.Extensions;
 using Sirenix.OdinInspector;
 #endif
 using UnityEditor;
-using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -168,7 +167,7 @@ namespace Dythervin.Core.Utils
         private SO[] singletons;
 
 #if UNITY_EDITOR
-        [DidReloadScripts]
+        [UnityEditor.Callbacks.DidReloadScripts]
         [MenuItem("Tools/SingletonAssets")]
 #if ODIN_INSPECTOR
         [Button]
