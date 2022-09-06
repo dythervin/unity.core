@@ -16,19 +16,29 @@ namespace Dythervin.Core.Editor.Drawers
 
         private bool _initialized;
 
+        private Type FieldType
+        {
+            get
+            {
+                Type type = fieldInfo.FieldType;
+                return type.IsArray ? type.GetElementType() : type;
+            }
+        }
+
         private void Init()
         {
             if (_initialized)
                 return;
 
 
-            if (!fieldInfo.FieldType.IsGenericType)
+            Type type = FieldType;
+            if (!type.IsGenericType)
                 throw new ArgumentException("Type must be generic");
 
-            if (fieldInfo.FieldType.GenericTypeArguments.Length != 1)
+            if (type.GenericTypeArguments.Length != 1)
                 throw new ArgumentException("Type must have only 1 generic parameter");
 
-            if (!fieldInfo.FieldType.GenericTypeArguments[0].IsClass)
+            if (!type.GenericTypeArguments[0].IsClass)
                 throw new ArgumentException("Generic parameter of a type must be class");
 
             _initialized = true;
@@ -42,11 +52,13 @@ namespace Dythervin.Core.Editor.Drawers
             EditorGUI.BeginProperty(position, label, obj);
             {
                 EditorGUI.BeginChangeCheck();
-                Object newValue = EditorGUI.ObjectField(position, label, obj.objectReferenceValue, fieldInfo.FieldType.GenericTypeArguments[0],
+                Object newValue = EditorGUI.ObjectField(position, label, obj.objectReferenceValue, FieldType.GenericTypeArguments[0],
                     property.serializedObject.targetObject is Component);
 
                 if (EditorGUI.EndChangeCheck() && (!newValue || Validate(newValue)))
+                {
                     obj.objectReferenceValue = newValue;
+                }
             }
             EditorGUI.EndProperty();
         }
