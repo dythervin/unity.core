@@ -1,76 +1,27 @@
-﻿using System.Collections.Generic;
-using Dythervin.Core.Utils;
-using UnityEditor;
+﻿using UnityEditor;
 
 namespace Dythervin.Core.Editor
 {
     public abstract class EditorPref<T>
     {
         public readonly string key;
-        private bool _loaded;
-        private T _value;
+        protected readonly T defaultValue;
 
         protected EditorPref(string key)
         {
             this.key = key;
-            _loaded = false;
         }
 
         protected EditorPref(string key, T defaultValue) : this(key)
         {
-            if (!ThreadExt.IsMain)
-            {
-                EditorApplication.delayCall += () =>
-                {
-                    if (!EditorPrefs.HasKey(key))
-                    {
-                        _value = defaultValue;
-                        // ReSharper disable once VirtualMemberCallInConstructor
-                        PersistentValue = defaultValue;
-                    }
-                };
-                return;
-            }
-
-            if (EditorPrefs.HasKey(key))
-            {
-                _value = defaultValue;
-                // ReSharper disable once VirtualMemberCallInConstructor
-                PersistentValue = defaultValue;
-            }
+            this.defaultValue = defaultValue;
         }
 
-        public T Value
-        {
-            get
-            {
-                TryLoad();
-                return _value;
-            }
-            set
-            {
-                TryLoad();
-                if (EqualityComparer<T>.Default.Equals(_value, value))
-                    return;
-
-                _value = value;
-                PersistentValue = value;
-            }
-        }
-
-        public abstract T PersistentValue { get; set; }
+        public abstract T Value { get; set; }
 
         public static implicit operator T(EditorPref<T> pref)
         {
             return pref.Value;
-        }
-
-        private void TryLoad()
-        {
-            if (_loaded)
-                return;
-            _loaded = true;
-            _value = PersistentValue;
         }
     }
 
@@ -79,9 +30,9 @@ namespace Dythervin.Core.Editor
         public EditorPrefBool(string key) : base(key) { }
         public EditorPrefBool(string key, bool defaultValue) : base(key, defaultValue) { }
 
-        public override bool PersistentValue
+        public override bool Value
         {
-            get => EditorPrefs.GetBool(key);
+            get => EditorPrefs.GetBool(key, defaultValue);
             set => EditorPrefs.SetBool(key, value);
         }
     }
@@ -91,9 +42,9 @@ namespace Dythervin.Core.Editor
         public EditorPrefInt(string key) : base(key) { }
         public EditorPrefInt(string key, int defaultValue) : base(key, defaultValue) { }
 
-        public override int PersistentValue
+        public override int Value
         {
-            get => EditorPrefs.GetInt(key);
+            get => EditorPrefs.GetInt(key, defaultValue);
             set => EditorPrefs.SetInt(key, value);
         }
     }
@@ -103,9 +54,9 @@ namespace Dythervin.Core.Editor
         public EditorPrefFloat(string key) : base(key) { }
         public EditorPrefFloat(string key, float defaultValue) : base(key, defaultValue) { }
 
-        public override float PersistentValue
+        public override float Value
         {
-            get => EditorPrefs.GetFloat(key);
+            get => EditorPrefs.GetFloat(key, defaultValue);
             set => EditorPrefs.SetFloat(key, value);
         }
     }
@@ -115,9 +66,9 @@ namespace Dythervin.Core.Editor
         public EditorPrefString(string key) : base(key) { }
         public EditorPrefString(string key, string defaultValue) : base(key, defaultValue) { }
 
-        public override string PersistentValue
+        public override string Value
         {
-            get => EditorPrefs.GetString(key);
+            get => EditorPrefs.GetString(key, defaultValue);
             set => EditorPrefs.SetString(key, value);
         }
     }
