@@ -10,5 +10,10 @@ namespace Dythervin.Core.Extensions
         {
             return (point - value).sqrMagnitude <= range * range;
         }
+        
+        public static float GetSum(in this Vector3 value)
+        {
+            return value.x + value.y + value.z;
+        }
     }
 }
