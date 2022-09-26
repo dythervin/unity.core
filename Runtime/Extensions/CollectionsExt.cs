@@ -30,6 +30,12 @@ namespace Dythervin.Core.Extensions
             return list[list.Count - 1];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T GetLast<T>(this T[] array)
+        {
+            return ref array[array.Length - 1];
+        }
+
         public static bool Pop<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, out TValue value)
         {
             value = dictionary[key];
