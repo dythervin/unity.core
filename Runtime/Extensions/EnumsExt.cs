@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Dythervin.Core.Extensions
 {
-    public static class Enums
+    public static class EnumsExt
     {
         private static readonly Dictionary<Type, IDictionary> Names = new Dictionary<Type, IDictionary>();
+        private static readonly Dictionary<Type, Array> Values = new Dictionary<Type, Array>();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] GetValues<T>(this T @enum)
+        public static IReadOnlyList<T> GetValues<T>(this T @enum, bool cache = false)
             where T : Enum
         {
-            return (T[])Enum.GetValues(typeof(T));
+            Type type = typeof(T);
+            if (!Values.TryGetValue(type, out Array array))
+            {
+                array = Enum.GetValues(typeof(T));
+                if (cache)
+                    Values[type] = array;
+            }
+
+            return (IReadOnlyList<T>)array;
         }
 
         public static string GetNameCached<T>(this T value)
