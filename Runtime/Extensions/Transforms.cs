@@ -52,8 +52,8 @@ namespace Dythervin.Core.Extensions
                 int key = transform.name.GetHashCode();
                 if (dictionary.ContainsKey(key))
                 {
-                    Debug.LogError($"Contains {transform.name}", transform);
-                    Debug.LogError($"   Target", dictionary[transform.name.GetHashCode()]);
+                    DLogger.LogError($"Contains {transform.name}", transform);
+                    DLogger.LogError($"   Target", dictionary[transform.name.GetHashCode()]);
                     continue;
                 }
 

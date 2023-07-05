@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Dythervin.Core.Extensions
 {
-    public static partial class CollectionsExt
+    public static partial class CollectionsExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Contains<T>(this T[] list, T value)
@@ -13,9 +13,16 @@ namespace Dythervin.Core.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Contains<T>(this T[] list, in T value)
+        public static int IndexOf<T>(this IReadOnlyList<T> list, T value, int startIndex = 0)
         {
-            return Array.IndexOf(list, value) >= 0;
+            int num = startIndex + list.Count;
+            for (int index = startIndex; index < num; ++index)
+            {
+                if (EqualityComparer<T>.Default.Equals(list[index], value))
+                    return index;
+            }
+
+            return -1;
         }
 
         public static void EnsureCapacity<TValue>(this List<TValue> list, int value)
@@ -49,6 +56,11 @@ namespace Dythervin.Core.Extensions
             return value;
         }
 
+        public static bool Remove<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        {
+            return dictionary.Remove(new KeyValuePair<TKey, TValue>(key, value));
+        }
+
         public static T PopAt<T>(this List<T> list, int index)
         {
             T item = list[index];
@@ -73,7 +85,6 @@ namespace Dythervin.Core.Extensions
             return true;
         }
 
-
         public static T PopLast<T>(this IList<T> list, out int index)
         {
             index = list.Count - 1;
@@ -82,22 +93,16 @@ namespace Dythervin.Core.Extensions
             return item;
         }
 
-        public static bool TryPop<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, out TValue value)
+#if !NETSTANDARD2_1_OR_GREATER
+        public static bool Remove<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, out TValue value)
         {
-            bool has = dictionary.TryGetValue(key, out value);
-            if (has)
-                dictionary.Remove(key);
-            return has;
+            return CollectionExtensions.Remove(dictionary, key, out value);
         }
 
-
-#if !NETSTANDARD2_1_OR_GREATER
         public static bool TryPop<T>(this Stack<T> stack, out T value)
         {
             bool has = stack.Count > 0;
-            value = has
-                ? stack.Pop()
-                : default;
+            value = has ? stack.Pop() : default;
             return has;
         }
 #endif

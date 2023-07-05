@@ -14,6 +14,7 @@
         {
             return new Wrapper<T>(value);
         }
+
         public static implicit operator T(Wrapper<T> value)
         {
             return value.value;

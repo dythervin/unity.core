@@ -7,12 +7,12 @@ namespace Dythervin.Core.Utils
     {
         private static Thread _mainThread;
 
+        public static bool IsMain => _mainThread == Thread.CurrentThread;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void EnterPlayMode()
         {
             _mainThread = Thread.CurrentThread;
         }
-
-        public static bool IsMain => _mainThread == Thread.CurrentThread;
     }
 }

@@ -1,25 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Dythervin.Core.Extensions
 {
-    public static class Misc
+    public static class StringExtensions
     {
-        public static bool IsSame<T>(this IList<T> a, IList<T> b)
-            where T : class
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static char GetLast(this StringBuilder builder)
         {
-            int count = a.Count;
-            if (count != b.Count)
-                return false;
+            return builder[builder.Length - 1];
+        }
 
-            for (int i = 0; i < count; i++)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static StringBuilder PopLast(this StringBuilder builder, int count = 1)
+        {
+            return builder.Remove(builder.Length - count, count);
+        }
+
+        public static string FirstCharToUpper(this string input)
+        {
+            return input switch
             {
-                if (!ReferenceEquals(a[i], b[i]))
-                    return false;
-            }
-
-            return true;
+                null => throw new ArgumentNullException(nameof(input)),
+                "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
+                _ => input[0].ToString().ToUpper() + input.Substring(1)
+            };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
