@@ -6,7 +6,6 @@ namespace Dythervin.Core.Extensions
 {
     public static class RectTransforms
     {
-        // Add a menu item called "Double Mass" to a Rigidbody's context menu.
         [MenuItem("CONTEXT/RectTransform/SetAnchors")]
         private static void SetAnchors(MenuCommand command)
         {

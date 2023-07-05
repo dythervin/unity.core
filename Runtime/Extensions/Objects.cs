@@ -23,23 +23,5 @@ namespace Dythervin.Core.Extensions
             AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(obj), newName);
 #endif
         }
-
-
-#if UNITY_EDITOR
-        [MenuItem("CONTEXT/Transform/ResetWithoutChild")]
-        private static void ResetWithoutChild(MenuCommand command)
-        {
-            Transform target = (Transform)command.context;
-            Undo.RecordObject(target, nameof(ResetWithoutChild));
-            var position = target.position;
-            target.position = Vector3.zero;
-            for (int i = target.childCount - 1; i >= 0; i--)
-            {
-                target.GetChild(i).position += position;
-            }
-
-            target.Dirty();
-        }
-#endif
     }
 }

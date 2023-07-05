@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using Dythervin.Core.Utils;
 using UnityEngine;
 
 namespace Dythervin.Core.Attributes
@@ -7,5 +9,8 @@ namespace Dythervin.Core.Attributes
     /// Draws attribute as read only
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class ReadOnlyAttribute : PropertyAttribute { }
+    [Conditional(Symbols.UNITY_EDITOR)]
+    public class ReadOnlyAttribute : PropertyAttribute
+    {
+    }
 }

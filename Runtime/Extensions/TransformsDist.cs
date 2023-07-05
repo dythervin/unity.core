@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Dythervin.Core.Extensions
 {
     public static class TransformsDist
     {
-        public static bool GetClosest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, FuncIn<TElement, Vector3> getter,
-            out TElement closest, FuncIn<TElement, bool> filter = null)
+        public static bool GetClosest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, Func<TElement, Vector3> getter,
+            out TElement closest, Func<TElement, bool> filter = null)
         {
             closest = default;
             float minDist = float.MaxValue;
@@ -43,29 +44,29 @@ namespace Dythervin.Core.Extensions
             return minDist != float.MaxValue;
         }
 
-        public static TElement GetClosest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, FuncIn<TElement, Vector3> getter,
-            FuncIn<TElement, bool> filter = null)
+        public static TElement GetClosest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, Func<TElement, Vector3> getter,
+            Func<TElement, bool> filter = null)
         {
             GetClosest(targets, point, getter, out TElement value, filter);
             return value;
         }
 
-        public static TElement GetClosest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, FuncIn<TElement, bool> filter = null)
+        public static TElement GetClosest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, Func<TElement, bool> filter = null)
             where TElement : Component
         {
-            GetClosest(targets, point, (in TElement component) => component.transform.position, out TElement closest, filter);
+            GetClosest(targets, point, component => component.transform.position, out TElement closest, filter);
             return closest;
         }
 
-        public static Vector3 GetClosest(this IEnumerable<Vector3> targets, in Vector3 point, FuncIn<Vector3, bool> filter = null)
+        public static Vector3 GetClosest(this IEnumerable<Vector3> targets, in Vector3 point, Func<Vector3, bool> filter = null)
         {
-            GetClosest(targets, point, (in Vector3 vector3) => vector3, out Vector3 closest, filter);
+            GetClosest(targets, point, vector3 => vector3, out Vector3 closest, filter);
             return closest;
         }
 
 
-        public static bool GetFarthest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, FuncIn<TElement, Vector3> getter,
-            out TElement farthest, FuncIn<TElement, bool> filter = null)
+        public static bool GetFarthest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, Func<TElement, Vector3> getter,
+            out TElement farthest, Func<TElement, bool> filter = null)
         {
             farthest = default;
             float maxDist = float.MinValue;
@@ -99,10 +100,10 @@ namespace Dythervin.Core.Extensions
             return maxDist != float.MinValue;
         }
 
-        public static TElement GetFarthest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, FuncIn<TElement, bool> filter = null)
+        public static TElement GetFarthest<TElement>(this IEnumerable<TElement> targets, in Vector3 point, Func<TElement, bool> filter = null)
             where TElement : Component
         {
-            GetFarthest(targets, point, (in TElement component) => component.transform.position, out TElement closest, filter);
+            GetFarthest(targets, point, component => component.transform.position, out TElement closest, filter);
             return closest;
         }
     }

@@ -25,7 +25,7 @@ namespace Dythervin.Core.Utils
             else
             {
                 Destroy(this);
-                Debug.LogWarning($"Trying to instantiate second instance of {typeof(T)}");
+                DLogger.LogWarning($"Trying to instantiate second instance of {typeof(T)}");
             }
         }
 

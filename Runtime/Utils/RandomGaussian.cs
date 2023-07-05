@@ -1,6 +1,6 @@
 ﻿using Unity.Mathematics;
 
-namespace Dythervin.Game.Random
+namespace Dythervin.Core.Utils
 {
     public static class RandomGaussian
     {

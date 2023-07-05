@@ -1,10 +1,9 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dythervin.Core.Extensions;
-#if ODIN_INSPECTOR
+#if ODIN_INSPECTOR && UNITY_EDITOR
 using Sirenix.OdinInspector;
 #endif
 using UnityEditor;
@@ -86,7 +85,7 @@ namespace Dythervin.Core.Utils
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
                 instance.OnCreated();
-                Debug.Log($"{typeof(T).Name} Created");
+                DLogger.Log($"{typeof(T).Name} Created");
                 return;
             }
 #endif
@@ -159,7 +158,7 @@ namespace Dythervin.Core.Utils
 
     public sealed class SingletonAsset : SingletonAsset<SingletonAsset>
     {
-#if ODIN_INSPECTOR
+#if ODIN_INSPECTOR && UNITY_EDITOR
         [ReadOnly]
 #endif
         [Preserve]
@@ -169,17 +168,16 @@ namespace Dythervin.Core.Utils
 #if UNITY_EDITOR
         [UnityEditor.Callbacks.DidReloadScripts]
         [MenuItem("Tools/SingletonAssets")]
-#if ODIN_INSPECTOR
+#if ODIN_INSPECTOR && UNITY_EDITOR
         [Button]
 #endif
         private static void Resolve()
         {
-            InstanceChecked.singletons = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes().Where(type
+            InstanceChecked.singletons = TypeHelper.ScriptableObjects.Get(type
                     => type.Instantiatable()
                        && !type.IsEnum
                        && !type.IsPrimitive
-                       && !type.IsGenericTypeDefinition
-                       && typeof(SingletonAsset<>).IsSubclassOfRawGeneric(type))).Select(type
+                       && typeof(SingletonAsset<>).IsSubclassOfRawGeneric(type)).Select(type
                     => (SO)type.GetProperty(nameof(InstanceChecked), BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).GetValue(null))
                 .ToArray();
 

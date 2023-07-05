@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Dythervin.Core.Extensions
 {
-    public static partial class CollectionsExt
+    public static partial class CollectionsExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetRandom<T>(this IReadOnlyList<T> list, int startIndex = 0)
@@ -36,6 +36,7 @@ namespace Dythervin.Core.Extensions
         {
             if (startIndex < 0)
                 throw new ArgumentOutOfRangeException();
+
             return UnityEngine.Random.Range(startIndex, list.Count);
         }
 
@@ -43,6 +44,7 @@ namespace Dythervin.Core.Extensions
         {
             if (startIndex < 0)
                 throw new ArgumentOutOfRangeException();
+
             return random.Next(startIndex, list.Count);
         }
 
@@ -50,6 +52,7 @@ namespace Dythervin.Core.Extensions
         {
             if (startIndex < 0)
                 throw new ArgumentOutOfRangeException();
+
             return UnityEngine.Random.Range(startIndex, list.Count);
         }
 
