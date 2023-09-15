@@ -1,9 +1,10 @@
+using Dythervin.Core.Utils;
 using UnityEngine;
 
-namespace Dythervin.Core.Utils
+namespace Dythervin.Core
 {
-    public abstract class MonoSingletonBase<T> : MonoBehaviour
-        where T : MonoSingletonBase<T>
+    public abstract class SingletonMonoBase<T> : MonoBehaviour
+        where T : SingletonMonoBase<T>
     {
         protected static T instance { get; private set; }
 
@@ -17,7 +18,6 @@ namespace Dythervin.Core.Utils
             if (instance == this)
                 return;
 
-
             if (instance == null)
             {
                 SetInstance((T)this);
@@ -25,7 +25,7 @@ namespace Dythervin.Core.Utils
             else
             {
                 Destroy(this);
-                DLogger.LogWarning($"Trying to instantiate second instance of {typeof(T)}");
+                DDebug.LogWarning($"Trying to instantiate second instance of {typeof(T)}");
             }
         }
 
@@ -34,7 +34,6 @@ namespace Dythervin.Core.Utils
             if (instance == this)
                 SetInstance(null);
         }
-
 
         /// <summary>
         /// Called on awake or before instance returned, depending on what happened first
@@ -53,25 +52,30 @@ namespace Dythervin.Core.Utils
         }
     }
 
-
-    public abstract class MonoSingleton<T> : MonoSingletonBase<T>
-        where T : MonoSingleton<T>
+    public abstract class SingletonMono<T, TImp> : SingletonMonoBase<TImp>
+        where T : class
+        where TImp : SingletonMono<T, TImp>, T
     {
         public static T Instance
         {
             get
             {
                 if (!Initialized)
-                    SetInstance(FindObjectOfType<T>());
+                    SetInstance(FindObjectOfType<TImp>());
 
                 return instance;
             }
         }
     }
 
+    public class SingletonMono<T> : SingletonMono<T, T>
+        where T : SingletonMono<T, T>
+    {
+    }
+
     [AddComponentMenu("")]
-    public abstract class MonoSingletonAuto<T> : MonoSingletonBase<T>
-        where T : MonoSingletonAuto<T>
+    public abstract class SingletonMonoAuto<T> : SingletonMonoBase<T>
+        where T : SingletonMonoAuto<T>
     {
         protected virtual bool IsDestroyableOnLoad => true;
 
@@ -89,7 +93,7 @@ namespace Dythervin.Core.Utils
         {
             if (!Initialized)
             {
-                Assertions.AssertIsNotQuitting();
+                DAssert.IsNotQuitting();
 
                 var gameObject = new GameObject(typeof(T).Name);
                 SetInstance(gameObject.AddComponent<T>());

@@ -3,28 +3,35 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dythervin.Core.Extensions;
-#if ODIN_INSPECTOR && UNITY_EDITOR
+using Dythervin.Core.Utils;
 using Sirenix.OdinInspector;
-#endif
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Scripting;
+#if ODIN_INSPECTOR && UNITY_EDITOR
+#endif
 
-namespace Dythervin.Core.Utils
+namespace Dythervin.Core
 {
     using SO = ScriptableObject;
 
     [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
-    public abstract class SingletonAsset<T> : SO
-        where T : SingletonAsset<T>, new()
+    public abstract class SingletonAsset<T, TImpl> : SO
+        where T : class
+        where TImpl : SingletonAsset<T, TImpl>, T, new()
     {
         private static bool _loaded;
-        private static T _instance;
+
+        private static TImpl _instance;
 
         private static readonly string Path = GetPath;
-        private static readonly string Name = $"{typeof(T).Name}";
+
+        private static readonly string Name = $"{typeof(TImpl).Name}";
+
         private static readonly string AssetFolderPath = $"Assets/Resources/{Path}";
+
         private static readonly string FullPath = $"{AssetFolderPath}/{Name}.asset";
+
         private static readonly string FullResourcesPath = $"{Path}/{Name}";
 
         private bool _initialized;
@@ -36,6 +43,7 @@ namespace Dythervin.Core.Utils
                 TryLoad();
                 if (!_instance._initialized)
                     _instance.Init();
+
                 return _instance;
             }
         }
@@ -53,14 +61,13 @@ namespace Dythervin.Core.Utils
         {
             get
             {
-                var attribute = typeof(T).GetCustomAttribute<SingletonAssetAttribute>();
-                return attribute != null
-                    ? attribute.resourcePath
-                    : SingletonAssetAttribute.DefaultPath;
+                var attribute = typeof(TImpl).GetCustomAttribute<SingletonAssetAttribute>();
+                return attribute != null ? attribute.resourcePath : SingletonAssetAttribute.DefaultPath;
             }
         }
 
-        private static T LoadAtPath => Resources.Load<T>(FullResourcesPath); // ReSharper disable Unity.PerformanceAnalysis
+        private static TImpl LoadAtPath =>
+            Resources.Load<TImpl>(FullResourcesPath); // ReSharper disable Unity.PerformanceAnalysis
 
         protected static void TryLoad()
         {
@@ -76,37 +83,44 @@ namespace Dythervin.Core.Utils
 #if UNITY_EDITOR
             if (!File.Exists(FullPath))
             {
-                var instance = CreateInstance<T>();
+                var instance = CreateInstance<TImpl>();
                 if (!Directory.Exists(AssetFolderPath))
                     Directory.CreateDirectory(new DirectoryInfo(AssetFolderPath).FullName);
+
                 if (!instance)
                     return;
+
                 AssetDatabase.CreateAsset(instance, FullPath);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
                 instance.OnCreated();
-                DLogger.Log($"{typeof(T).Name} Created");
+                DDebug.Log($"{typeof(TImpl).Name} Created");
                 return;
             }
 #endif
             SetInstance(LoadAtPath);
         }
 
-        protected virtual void OnCreated() { }
+        protected virtual void OnCreated()
+        {
+        }
 
         protected void OnEnable()
         {
             if (_instance == this)
+            {
+                OnEnabled();
                 return;
-
+            }
 
             if (_instance == null)
             {
-                SetInstance((T)this);
+                SetInstance((TImpl)this);
+                OnEnabled();
             }
+#if UNITY_EDITOR
             else
             {
-#if UNITY_EDITOR
                 if (EditorUtility.IsPersistent(_instance))
                 {
                     string currentPath = AssetDatabase.GetAssetPath(this);
@@ -128,8 +142,12 @@ namespace Dythervin.Core.Utils
                 {
                     DestroyImmediate(_instance);
                 }
-#endif
             }
+#endif
+        }
+
+        protected virtual void OnEnabled()
+        {
         }
 
         /// <summary>
@@ -143,11 +161,11 @@ namespace Dythervin.Core.Utils
         protected virtual void OnDisable()
         {
             _initialized = false;
-            if (_instance == (T)this)
+            if (_instance == (TImpl)this)
                 SetInstance(null);
         }
 
-        private static void SetInstance(T value)
+        private static void SetInstance(TImpl value)
         {
             _instance = value;
             _loaded = value;
@@ -156,7 +174,12 @@ namespace Dythervin.Core.Utils
         }
     }
 
-    public sealed class SingletonAsset : SingletonAsset<SingletonAsset>
+    public class SingletonAsset<TObject> : SingletonAsset<TObject, TObject>
+        where TObject : SingletonAsset<TObject, TObject>, new()
+    {
+    }
+
+    internal sealed class SingletonAsset : SingletonAsset<SingletonAsset>
     {
 #if ODIN_INSPECTOR && UNITY_EDITOR
         [ReadOnly]
@@ -173,13 +196,12 @@ namespace Dythervin.Core.Utils
 #endif
         private static void Resolve()
         {
-            InstanceChecked.singletons = TypeHelper.ScriptableObjects.Get(type
-                    => type.Instantiatable()
-                       && !type.IsEnum
-                       && !type.IsPrimitive
-                       && typeof(SingletonAsset<>).IsSubclassOfRawGeneric(type)).Select(type
-                    => (SO)type.GetProperty(nameof(InstanceChecked), BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).GetValue(null))
-                .ToArray();
+            InstanceChecked.singletons = TypeHelper.ScriptableObjects
+                .Get(type => type.IsInstantiatable() && !type.IsEnum && !type.IsPrimitive &&
+                             typeof(SingletonAsset<,>).IsSubclassOfRawGeneric(type)).Select(type =>
+                    (SO)type.GetProperty(nameof(InstanceChecked),
+                        BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic |
+                        BindingFlags.FlattenHierarchy).GetValue(null)).ToArray();
 
             Instance.Dirty();
         }

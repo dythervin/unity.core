@@ -11,7 +11,7 @@ namespace Dythervin.Core.Extensions
 
         public EnumFlagsEnumerator(TEnum value)
         {
-            _enumerator = new EnumFlagsEnumerator(value.ToLong());
+            _enumerator = new EnumFlagsEnumerator(value.AsLong());
         }
 
         public bool MoveNext()
@@ -24,7 +24,7 @@ namespace Dythervin.Core.Extensions
             _enumerator.Reset();
         }
 
-        public TEnum Current => EnumCast.To<TEnum>(_enumerator.Current);
+        public TEnum Current => EnumCast.As<TEnum>(_enumerator.Current);
 
         object IEnumerator.Current => Current;
 

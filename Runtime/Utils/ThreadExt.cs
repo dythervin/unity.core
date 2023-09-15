@@ -9,7 +9,7 @@ namespace Dythervin.Core.Utils
 
         public static bool IsMain => _mainThread == Thread.CurrentThread;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        [RuntimeInitializeOnLoadMethod]
         private static void EnterPlayMode()
         {
             _mainThread = Thread.CurrentThread;

@@ -24,7 +24,7 @@ namespace Dythervin.Core.Editor
                 var type = instance.GetType();
                 string fieldName = paths[i];
                 fieldInfo = type.GetFieldExt(fieldName,
-                    BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic);
+                    BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic | BindingFlags.Public);
 
                 if (fieldInfo == null)
                 {
@@ -67,7 +67,7 @@ namespace Dythervin.Core.Editor
                 var type = instance.GetType();
                 string fieldName = paths[i];
                 FieldInfo fieldInfo = type.GetFieldExt(fieldName,
-                    BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic);
+                    BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic | BindingFlags.Public);
 
                 if (fieldInfo == null)
                     return;
@@ -81,7 +81,7 @@ namespace Dythervin.Core.Editor
                     indexString = indexString.Remove("data[").Remove("]");
                     int index = int.Parse(indexString);
                     //Should be data['index']
-                    if (i == paths.Length)
+                    if (i == paths.Length - 1)
                     {
                         array.SetValue(value, index);
                         return;

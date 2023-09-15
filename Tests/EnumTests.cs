@@ -3,8 +3,6 @@ using System.Linq;
 using System.Reflection;
 using Dythervin.Core.Extensions;
 using NUnit.Framework;
-using Unity.Mathematics;
-using UnityEngine;
 
 namespace Dythervin.Core.Tests
 {
