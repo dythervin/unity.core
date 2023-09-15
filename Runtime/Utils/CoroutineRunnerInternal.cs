@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Dythervin.Core.Utils
 {
-    internal class CoroutineRunnerInternal : MonoSingletonAuto<CoroutineRunnerInternal>
+    internal class CoroutineRunnerInternal : SingletonMonoAuto<CoroutineRunnerInternal>
     {
     }
 

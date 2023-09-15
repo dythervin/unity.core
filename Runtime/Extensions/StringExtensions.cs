@@ -7,6 +7,8 @@ namespace Dythervin.Core.Extensions
 {
     public static class StringExtensions
     {
+        private const string Intend = "    ";
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static char GetLast(this StringBuilder builder)
         {
@@ -17,6 +19,29 @@ namespace Dythervin.Core.Extensions
         public static StringBuilder PopLast(this StringBuilder builder, int count = 1)
         {
             return builder.Remove(builder.Length - count, count);
+        }
+
+        public static StringBuilder RemoveFrom(this StringBuilder stringBuilder, int index)
+        {
+            return stringBuilder.Remove(index, stringBuilder.Length - index);
+        }
+
+        public static StringBuilder AppendIntend(this StringBuilder stringBuilder, int intendLevel)
+        {
+            stringBuilder.EnsureCapacity(stringBuilder.Capacity + intendLevel * Intend.Length);
+            for (int i = 0; i < intendLevel; i++)
+            {
+                stringBuilder.Append(Intend);
+            }
+
+            return stringBuilder;
+        }
+
+        public static string ToStringAndClear(this StringBuilder stringBuilder)
+        {
+            string str = stringBuilder.ToString();
+            stringBuilder.Clear();
+            return str;
         }
 
         public static string FirstCharToUpper(this string input)

@@ -5,28 +5,29 @@ namespace Dythervin.Core.Extensions
 {
     public static class EnumCast
     {
-        private static byte ToByteUnsafe<TEnum>(this TEnum value)
+        private static byte AsByteUnsafe<TEnum>(this TEnum value)
+            where TEnum : unmanaged, Enum
         {
             return UnsafeUtility.As<TEnum, byte>(ref value);
         }
 
-        public static byte ToByte(this Enum value)
+        public static byte AsByte(this Enum value)
         {
             return Convert.ToByte(value);
         }
         
-        private static TEnum ToUnsafe<TEnum>(byte value)
+        private static TEnum AsUnsafe<TEnum>(byte value)
             where TEnum : Enum
         {
             return UnsafeUtility.As<byte, TEnum>(ref value);
         }
 
-        public static byte ToByte<TEnum>(this TEnum value)
+        public static byte AsByte<TEnum>(this TEnum value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size >= sizeof(byte))
-                return ToByteUnsafe(value);
+                return AsByteUnsafe(value);
 
             switch (size)
             {
@@ -35,168 +36,168 @@ namespace Dythervin.Core.Extensions
             }
         }
 
-        public static TEnum To<TEnum>(byte value)
+        public static TEnum As<TEnum>(byte value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size <= sizeof(byte))
-                return ToUnsafe<TEnum>(value);
+                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
                 case 2:
-                    return ToUnsafe<TEnum>((ushort)value);
+                    return AsUnsafe<TEnum>((ushort)value);
                 case 4:
-                    return ToUnsafe<TEnum>((uint)value);
+                    return AsUnsafe<TEnum>((uint)value);
                 case 8:
-                    return ToUnsafe<TEnum>((ulong)value);
+                    return AsUnsafe<TEnum>((ulong)value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        private static ushort ToUshortUnsafe<TEnum>(this TEnum value)
+        private static ushort AsUshortUnsafe<TEnum>(this TEnum value)
         {
             return UnsafeUtility.As<TEnum, ushort>(ref value);
         }
 
-        public static ushort ToUshort(this Enum value)
+        public static ushort AsUshort(this Enum value)
         {
             return Convert.ToUInt16(value);
         }
         
-        private static TEnum ToUnsafe<TEnum>(ushort value)
+        private static TEnum AsUnsafe<TEnum>(ushort value)
             where TEnum : Enum
         {
             return UnsafeUtility.As<ushort, TEnum>(ref value);
         }
 
-        public static ushort ToUshort<TEnum>(this TEnum value)
+        public static ushort AsUshort<TEnum>(this TEnum value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size >= sizeof(ushort))
-                return ToUshortUnsafe(value);
+                return AsUshortUnsafe(value);
 
             switch (size)
             {
                 case 1:
-                    return ToByteUnsafe(value);
+                    return AsByteUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        public static TEnum To<TEnum>(ushort value)
+        public static TEnum As<TEnum>(ushort value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size <= sizeof(ushort))
-                return ToUnsafe<TEnum>(value);
+                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
                 case 4:
-                    return ToUnsafe<TEnum>((uint)value);
+                    return AsUnsafe<TEnum>((uint)value);
                 case 8:
-                    return ToUnsafe<TEnum>((ulong)value);
+                    return AsUnsafe<TEnum>((ulong)value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        private static uint ToUintUnsafe<TEnum>(this TEnum value)
+        private static uint AsUintUnsafe<TEnum>(this TEnum value)
         {
             return UnsafeUtility.As<TEnum, uint>(ref value);
         }
 
-        public static uint ToUint(this Enum value)
+        public static uint AsUint(this Enum value)
         {
             return Convert.ToUInt32(value);
         }
         
-        private static TEnum ToUnsafe<TEnum>(uint value)
+        private static TEnum AsUnsafe<TEnum>(uint value)
             where TEnum : Enum
         {
             return UnsafeUtility.As<uint, TEnum>(ref value);
         }
 
-        public static uint ToUint<TEnum>(this TEnum value)
+        public static uint AsUint<TEnum>(this TEnum value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size >= sizeof(uint))
-                return ToUintUnsafe(value);
+                return AsUintUnsafe(value);
 
             switch (size)
             {
                 case 1:
-                    return ToByteUnsafe(value);
+                    return AsByteUnsafe(value);
                 case 2:
-                    return ToUshortUnsafe(value);
+                    return AsUshortUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        public static TEnum To<TEnum>(uint value)
+        public static TEnum As<TEnum>(uint value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size <= sizeof(uint))
-                return ToUnsafe<TEnum>(value);
+                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
                 case 8:
-                    return ToUnsafe<TEnum>((ulong)value);
+                    return AsUnsafe<TEnum>((ulong)value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        private static ulong ToUlongUnsafe<TEnum>(this TEnum value)
+        private static ulong AsUlongUnsafe<TEnum>(this TEnum value)
         {
             return UnsafeUtility.As<TEnum, ulong>(ref value);
         }
 
-        public static ulong ToUlong(this Enum value)
+        public static ulong AsUlong(this Enum value)
         {
             return Convert.ToUInt64(value);
         }
         
-        private static TEnum ToUnsafe<TEnum>(ulong value)
+        private static TEnum AsUnsafe<TEnum>(ulong value)
             where TEnum : Enum
         {
             return UnsafeUtility.As<ulong, TEnum>(ref value);
         }
 
-        public static ulong ToUlong<TEnum>(this TEnum value)
+        public static ulong AsUlong<TEnum>(this TEnum value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size >= sizeof(ulong))
-                return ToUlongUnsafe(value);
+                return AsUlongUnsafe(value);
 
             switch (size)
             {
                 case 1:
-                    return ToByteUnsafe(value);
+                    return AsByteUnsafe(value);
                 case 2:
-                    return ToUshortUnsafe(value);
+                    return AsUshortUnsafe(value);
                 case 4:
-                    return ToUintUnsafe(value);
+                    return AsUintUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        public static TEnum To<TEnum>(ulong value)
+        public static TEnum As<TEnum>(ulong value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size <= sizeof(ulong))
-                return ToUnsafe<TEnum>(value);
+                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
@@ -205,28 +206,28 @@ namespace Dythervin.Core.Extensions
             }
         }
 
-        private static sbyte ToSbyteUnsafe<TEnum>(this TEnum value)
+        private static sbyte AsSbyteUnsafe<TEnum>(this TEnum value)
         {
             return UnsafeUtility.As<TEnum, sbyte>(ref value);
         }
 
-        public static sbyte ToSbyte(this Enum value)
+        public static sbyte AsSbyte(this Enum value)
         {
             return Convert.ToSByte(value);
         }
         
-        private static TEnum ToUnsafe<TEnum>(sbyte value)
+        private static TEnum AsUnsafe<TEnum>(sbyte value)
             where TEnum : Enum
         {
             return UnsafeUtility.As<sbyte, TEnum>(ref value);
         }
 
-        public static sbyte ToSbyte<TEnum>(this TEnum value)
+        public static sbyte AsSbyte<TEnum>(this TEnum value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size >= sizeof(sbyte))
-                return ToSbyteUnsafe(value);
+                return AsSbyteUnsafe(value);
 
             switch (size)
             {
@@ -235,168 +236,168 @@ namespace Dythervin.Core.Extensions
             }
         }
 
-        public static TEnum To<TEnum>(sbyte value)
+        public static TEnum As<TEnum>(sbyte value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size <= sizeof(sbyte))
-                return ToUnsafe<TEnum>(value);
+                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
                 case 2:
-                    return ToUnsafe<TEnum>((short)value);
+                    return AsUnsafe<TEnum>((short)value);
                 case 4:
-                    return ToUnsafe<TEnum>((int)value);
+                    return AsUnsafe<TEnum>((int)value);
                 case 8:
-                    return ToUnsafe<TEnum>((long)value);
+                    return AsUnsafe<TEnum>((long)value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        private static short ToShortUnsafe<TEnum>(this TEnum value)
+        private static short AsShortUnsafe<TEnum>(this TEnum value)
         {
             return UnsafeUtility.As<TEnum, short>(ref value);
         }
 
-        public static short ToShort(this Enum value)
+        public static short AsShort(this Enum value)
         {
             return Convert.ToInt16(value);
         }
         
-        private static TEnum ToUnsafe<TEnum>(short value)
+        private static TEnum AsUnsafe<TEnum>(short value)
             where TEnum : Enum
         {
             return UnsafeUtility.As<short, TEnum>(ref value);
         }
 
-        public static short ToShort<TEnum>(this TEnum value)
+        public static short AsShort<TEnum>(this TEnum value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size >= sizeof(short))
-                return ToShortUnsafe(value);
+                return AsShortUnsafe(value);
 
             switch (size)
             {
                 case 1:
-                    return ToSbyteUnsafe(value);
+                    return AsSbyteUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        public static TEnum To<TEnum>(short value)
+        public static TEnum As<TEnum>(short value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size <= sizeof(short))
-                return ToUnsafe<TEnum>(value);
+                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
                 case 4:
-                    return ToUnsafe<TEnum>((int)value);
+                    return AsUnsafe<TEnum>((int)value);
                 case 8:
-                    return ToUnsafe<TEnum>((long)value);
+                    return AsUnsafe<TEnum>((long)value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        private static int ToIntUnsafe<TEnum>(this TEnum value)
+        private static int AsIntUnsafe<TEnum>(this TEnum value)
         {
             return UnsafeUtility.As<TEnum, int>(ref value);
         }
 
-        public static int ToInt(this Enum value)
+        public static int AsInt(this Enum value)
         {
             return Convert.ToInt32(value);
         }
         
-        private static TEnum ToUnsafe<TEnum>(int value)
+        private static TEnum AsUnsafe<TEnum>(int value)
             where TEnum : Enum
         {
             return UnsafeUtility.As<int, TEnum>(ref value);
         }
 
-        public static int ToInt<TEnum>(this TEnum value)
+        public static int AsInt<TEnum>(this TEnum value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size >= sizeof(int))
-                return ToIntUnsafe(value);
+                return AsIntUnsafe(value);
 
             switch (size)
             {
                 case 1:
-                    return ToSbyteUnsafe(value);
+                    return AsSbyteUnsafe(value);
                 case 2:
-                    return ToShortUnsafe(value);
+                    return AsShortUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        public static TEnum To<TEnum>(int value)
+        public static TEnum As<TEnum>(int value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size <= sizeof(int))
-                return ToUnsafe<TEnum>(value);
+                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
                 case 8:
-                    return ToUnsafe<TEnum>((long)value);
+                    return AsUnsafe<TEnum>((long)value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        private static long ToLongUnsafe<TEnum>(this TEnum value)
+        private static long AsLongUnsafe<TEnum>(this TEnum value)
         {
             return UnsafeUtility.As<TEnum, long>(ref value);
         }
 
-        public static long ToLong(this Enum value)
+        public static long AsLong(this Enum value)
         {
             return Convert.ToInt64(value);
         }
         
-        private static TEnum ToUnsafe<TEnum>(long value)
+        private static TEnum AsUnsafe<TEnum>(long value)
             where TEnum : Enum
         {
             return UnsafeUtility.As<long, TEnum>(ref value);
         }
 
-        public static long ToLong<TEnum>(this TEnum value)
+        public static long AsLong<TEnum>(this TEnum value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size >= sizeof(long))
-                return ToLongUnsafe(value);
+                return AsLongUnsafe(value);
 
             switch (size)
             {
                 case 1:
-                    return ToSbyteUnsafe(value);
+                    return AsSbyteUnsafe(value);
                 case 2:
-                    return ToShortUnsafe(value);
+                    return AsShortUnsafe(value);
                 case 4:
-                    return ToIntUnsafe(value);
+                    return AsIntUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
         }
 
-        public static TEnum To<TEnum>(long value)
+        public static TEnum As<TEnum>(long value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
             if (size <= sizeof(long))
-                return ToUnsafe<TEnum>(value);
+                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {

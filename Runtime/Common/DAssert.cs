@@ -4,10 +4,10 @@ using UnityEngine.Assertions;
 
 namespace Dythervin.Core.Utils
 {
-    public static class Assertions
+    public static class DAssert
     {
         [Conditional(Symbols.UNITY_EDITOR)]
-        public static void AssertPlayMode()
+        public static void PlayMode()
         {
 #if UNITY_EDITOR
             if (!ApplicationExt.IsPlaying)
@@ -15,13 +15,13 @@ namespace Dythervin.Core.Utils
 #endif
         }
 
-        public static void AssertMainThread()
+        public static void MainThread()
         {
             if (!ThreadExt.IsMain)
                 throw new Exception("Can be called on main thread only");
         }
 
-        public static void AssertIsNotQuitting()
+        public static void IsNotQuitting()
         {
             if (ApplicationExt.IsQuitting)
                 throw new Exception("Cannot be called while quitting play mode");
@@ -37,8 +37,14 @@ namespace Dythervin.Core.Utils
         {
             if (value == null || value is UnityEngine.Object obj && obj == null)
                 return;
-            
+
             throw new AssertionException("Value is not null", message);
+        }
+        
+        public static void IsTrue(bool value, string message = "")
+        {
+            if (!value)
+                throw new AssertionException("Value is not null", message);
         }
     }
 }

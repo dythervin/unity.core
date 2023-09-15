@@ -7,6 +7,15 @@ namespace Dythervin.Core.Extensions
     public static partial class CollectionsExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Reset<T>(this T[] list)
+        {
+            for (int i = 0; i < list.Length; i++)
+            {
+                list[i] = default;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Contains<T>(this T[] list, T value)
         {
             return Array.IndexOf(list, value) >= 0;
@@ -35,6 +44,22 @@ namespace Dythervin.Core.Extensions
         public static T GetLast<T>(this IReadOnlyList<T> list)
         {
             return list[list.Count - 1];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool AddB<T>(this ICollection<T> list, T value)
+        {
+            int count = list.Count;
+            list.Add(value);
+            return count != list.Count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool RemoveB<T>(this ICollection<T> list, T value)
+        {
+            int count = list.Count;
+            list.Remove(value);
+            return count != list.Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

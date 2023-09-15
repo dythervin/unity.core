@@ -14,9 +14,8 @@ namespace Dythervin.Core.Editor.Drawers
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            EditorGUI.BeginDisabledGroup(true);
+            using EditorGUI.DisabledScope foo = new EditorGUI.DisabledScope(true);
             EditorGUI.PropertyField(position, property, label, true);
-            EditorGUI.EndDisabledGroup();
         }
     }
 }

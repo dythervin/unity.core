@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dythervin.Core.Utils
+namespace Dythervin.Core
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class SingletonAssetAttribute : Attribute
