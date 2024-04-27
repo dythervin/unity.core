@@ -1,8 +1,7 @@
-﻿using Dythervin.Core.Attributes;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace Dythervin.Core.Editor.Drawers
+namespace Dythervin.Editor
 {
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadonlyDrawer : PropertyDrawer
@@ -14,7 +13,7 @@ namespace Dythervin.Core.Editor.Drawers
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            using EditorGUI.DisabledScope foo = new EditorGUI.DisabledScope(true);
+            using EditorGUI.DisabledScope disabledScope = new EditorGUI.DisabledScope(true);
             EditorGUI.PropertyField(position, property, label, true);
         }
     }

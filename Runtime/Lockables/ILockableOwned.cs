@@ -1,4 +1,4 @@
-﻿namespace Dythervin.Core.Lockables
+﻿namespace Dythervin
 {
     public interface ILockableOwned : ILockable
     {

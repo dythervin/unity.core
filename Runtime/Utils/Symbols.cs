@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using UnityEditor;
 
-namespace Dythervin.Core.Utils
+namespace Dythervin
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public static class Symbols
     {
         ///Scripting symbol to call Unity Editor scripts from your game code.
@@ -125,23 +128,97 @@ namespace Dythervin.Core.Utils
         ///Defined when your script is running in a player which was built with the “Development Build” option enabled.
         public const string DEVELOPMENT_BUILD = nameof(DEVELOPMENT_BUILD);
 
-        public const string DDebug = nameof(DDebug);
+        public static class LOG_VERBOSITY
+        {
+            private const string PREFIX = "LV_";
+            public const string ERROR = PREFIX + nameof(ERROR);
+            public const string WARN = PREFIX + nameof(WARN);
+            public const string INFO = PREFIX + nameof(INFO);
+            public const string DEBUG = PREFIX + nameof(DEBUG);
+            public const string DEBUG_HEAVY = PREFIX + nameof(DEBUG_HEAVY);
+        }
+
+        public const string ENABLE_PROFILER = nameof(ENABLE_PROFILER);
 
         [Conditional(UNITY_EDITOR)]
-        public static void AddSymbol(string define)
+        public static void TryAddSymbol(string define, BuildTargetGroup buildTargetGroup)
         {
 #if UNITY_EDITOR
-            if (EditorUserBuildSettings.selectedBuildTargetGroup == BuildTargetGroup.Unknown)
-                throw new Exception("EditorUserBuildSettings.selectedBuildTargetGroup is Unknown");
+            if (buildTargetGroup == BuildTargetGroup.Unknown)
+                throw new ArgumentException("buildTargetGroup is Unknown", nameof(buildTargetGroup));
 
-            string defines =
-                PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-
+            string[] defines = GetSymbols(buildTargetGroup);
             if (defines.Contains(define))
                 return;
 
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup,
-                $"{defines};{define}");
+            defines = defines.Append(define).ToArray();
+
+            SetSymbols(buildTargetGroup, defines);
+#endif
+        }
+
+        [Conditional(UNITY_EDITOR)]
+        public static void TryAddSymbols(IEnumerable<string> define, BuildTargetGroup buildTargetGroup)
+        {
+#if UNITY_EDITOR
+            if (buildTargetGroup == BuildTargetGroup.Unknown)
+                throw new ArgumentException("buildTargetGroup is Unknown", nameof(buildTargetGroup));
+
+            string[] defines = GetSymbols(buildTargetGroup);
+
+            {
+                var list = defines.ToList();
+                list.AddRange(define);
+                defines = list.Distinct().ToArray();
+            }
+
+            SetSymbols(buildTargetGroup, defines);
+#endif
+        }
+
+        [Conditional(UNITY_EDITOR)]
+        public static void TryAddSymbol(string define)
+        {
+#if UNITY_EDITOR
+            TryAddSymbol(define, EditorUserBuildSettings.selectedBuildTargetGroup);
+#endif
+        }
+
+        [Conditional(UNITY_EDITOR)]
+        public static void TryAddSymbols(IEnumerable<string> define)
+        {
+#if UNITY_EDITOR
+            TryAddSymbols(define, EditorUserBuildSettings.selectedBuildTargetGroup);
+#endif
+        }
+#if UNITY_EDITOR
+        public static string[] GetSymbols(BuildTargetGroup buildTargetGroup)
+        {
+            PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup, out string[] defines);
+            return defines;
+        }
+#endif
+
+        public static string[] GetSymbols()
+        {
+#if UNITY_EDITOR
+            return GetSymbols(EditorUserBuildSettings.selectedBuildTargetGroup);
+#endif
+            return System.Array.Empty<string>();
+        }
+
+#if UNITY_EDITOR
+        public static void SetSymbols(BuildTargetGroup buildTargetGroup, string[] defines)
+        {
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
+        }
+#endif
+
+        [Conditional(UNITY_EDITOR)]
+        public static void SetSymbols(string[] defines)
+        {
+#if UNITY_EDITOR
+            SetSymbols(EditorUserBuildSettings.selectedBuildTargetGroup, defines);
 #endif
         }
     }

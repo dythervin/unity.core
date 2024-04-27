@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using UnityEngine;
 using Random = System.Random;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static partial class RandomExtensions
     {
@@ -15,6 +15,12 @@ namespace Dythervin.Core.Extensions
         public static byte NextByte(this Random random)
         {
             return (byte)random.Next(byte.MinValue, byte.MaxValue + 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte NextByte(this Random random, byte max)
+        {
+            return (byte)random.Next(byte.MinValue, Mathf.Clamp(max + 1, byte.MinValue, byte.MaxValue));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,10 +100,11 @@ namespace Dythervin.Core.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void FillRandom<T>(this Random random, ICollection<T> collection, Func<Random, T> func)
+        public static void FillRandom<T>(this Random random, ICollection<T> collection, Func<Random, T> func,
+            byte maxSize)
         {
             collection.Clear();
-            byte size = random.NextByte();
+            byte size = random.NextByte(maxSize);
             for (byte i = 0; i < size; i++)
             {
                 collection.Add(func.Invoke(random));
@@ -105,22 +112,22 @@ namespace Dythervin.Core.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void FillRandom<TCollection, T>(this Random random, ref TCollection collection,
-            Func<Random, T> func)
+        public static void FillRandom<TCollection, T>(this Random random, ref TCollection collection, Func<Random, T> func,
+            byte maxSize)
             where TCollection : ICollection<T>, new()
         {
             collection ??= new TCollection();
-            random.FillRandom(collection, func);
+            random.FillRandom(collection, func, maxSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void FillRandom<TCollection, T, T1>(this Random random, ref TCollection dictionary,
-            Func<Random, T> funcT, Func<Random, T1> funcT1)
+        public static void FillRandom<TCollection, T, T1>(this Random random, ref TCollection dictionary, Func<Random, T> funcT,
+            Func<Random, T1> funcT1, byte maxSize)
             where TCollection : IDictionary<T, T1>, new()
         {
             dictionary ??= new TCollection();
             dictionary.Clear();
-            byte size = random.NextByte();
+            byte size = random.NextByte(maxSize);
             for (byte i = 0; i < size; i++)
             {
                 dictionary[funcT.Invoke(random)] = funcT1.Invoke(random);
@@ -128,9 +135,10 @@ namespace Dythervin.Core.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void FillRandom<T>(this Random random, ref T[] collection, Func<Random, T> func)
+        public static void FillRandom<T>(this Random random, ref T[] collection, Func<Random, T> func,
+            byte maxSize)
         {
-            collection ??= new T[ random.NextByte()];
+            collection ??= new T[random.NextByte(maxSize)];
             for (byte i = 0; i < collection.Length; i++)
             {
                 collection[i] = func.Invoke(random);

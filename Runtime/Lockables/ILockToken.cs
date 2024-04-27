@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dythervin.Core.Lockables
+namespace Dythervin
 {
     public interface ILockToken : ILockableSimple, IDisposable
     {

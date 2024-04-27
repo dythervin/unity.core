@@ -1,4 +1,4 @@
-﻿namespace Dythervin.Core
+﻿namespace Dythervin
 {
     public abstract class Singleton<T, TImpl>
         where T : class

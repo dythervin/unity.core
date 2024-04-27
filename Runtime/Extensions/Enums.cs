@@ -1,92 +1,84 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static class Enums
     {
-        private static readonly Dictionary<Type, IDictionary> NamesDictionary = new Dictionary<Type, IDictionary>();
-        private static readonly Dictionary<Type, Array> Values = new Dictionary<Type, Array>();
-        private static readonly Dictionary<Type, IReadOnlyList<string>> Names =
-            new Dictionary<Type, IReadOnlyList<string>>();
-
-        public static IReadOnlyList<T> GetValues<T>(bool cache = false)
+        public static IReadOnlyList<T> GetValues<T>()
             where T : Enum
         {
-            Type type = typeof(T);
-            if (!Values.TryGetValue(type, out Array array))
-            {
-                array = Enum.GetValues(typeof(T));
-                if (cache)
-                    Values[type] = array;
-            }
-
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            return (IReadOnlyList<T>)array;
+            return Cache<T>.Values;
         }
 
         // ReSharper disable once UnusedParameter.Global
-        public static IReadOnlyList<T> GetValues<T>(this T @enum, bool cache = false)
+        public static IReadOnlyList<T> GetValues<T>(this T @enum)
             where T : Enum
         {
-            return GetValues<T>(cache);
+            return GetValues<T>();
         }
 
-        public static EnumFlagsEnumerable<TEnum> ToEnumerable<TEnum>(this TEnum @enum)
+        public static EnumFlagsInt32Enumerable<TEnum> ToEnumerable<TEnum>(this TEnum @enum)
             where TEnum : unmanaged, Enum
         {
-            return new EnumFlagsEnumerable<TEnum>(@enum);
+            return new EnumFlagsInt32Enumerable<TEnum>(@enum);
         }
 
-        public static IReadOnlyList<string> GetNames<T>(bool cache = false)
+        public static IReadOnlyList<string> GetNames(Type type)
+        {
+            return Cache<Enum>.Names;
+        }
+
+        public static IReadOnlyList<string> GetNames<T>(this T @enum)
             where T : Enum
         {
-            return GetNames(typeof(T), cache);
+            return GetNames(typeof(T));
         }
-
-        public static IReadOnlyList<string> GetNames(Type type, bool cache = false)
-        {
-            Assert.IsTrue(type != null && type.IsEnum);
-            if (!Names.TryGetValue(type, out var array))
-            {
-                array = Enum.GetNames(type);
-                if (cache)
-                    Names[type] = array;
-            }
-
-            return array;
-        }
-
-        public static IReadOnlyList<string> GetNames<T>(this T @enum, bool cache = false)
-            where T : Enum
-        {
-            return GetNames<T>(cache);
-        }
-
 
         public static bool HasFlagFast(this BindingFlags value, BindingFlags flag)
         {
             return (value & flag) != 0;
         }
 
-        public static string GetNameCached<T>(this T value)
+        public static string ToStringCached<T>(this T value)
             where T : Enum
         {
-            Type type = typeof(T);
-            Dictionary<T, string> dict;
+            if (Cache<T>.Dictionary.TryGetValue(value, out string name))
+                return name;
 
-            if (NamesDictionary.TryGetValue(type, out IDictionary iDict))
-                dict = (Dictionary<T, string>)iDict;
-            else
-                NamesDictionary.Add(type, dict = new Dictionary<T, string>());
+            throw new ArgumentException($"Enum value {value} not found in {typeof(T)}");
+        }
 
-            if (!dict.TryGetValue(value, out string name))
-                dict[value] = name = value.ToString();
+        private static class Cache<T>
+            where T : Enum
+        {
+            public static readonly IReadOnlyList<string> Names;
+            public static readonly IReadOnlyDictionary<T, string> Dictionary;
+            public static readonly IReadOnlyList<T> Values;
 
-            return name;
+            static Cache()
+            {
+                Type type = typeof(T);
+
+                Values = (T[])Enum.GetValues(type);
+                var names = new string[Values.Count];
+                var dictionary = new Dictionary<T, string>(Values.Count);
+                int index = 0;
+                foreach (T value in Values)
+                {
+                    var name = value.ToString();
+                    dictionary.Add(value, name);
+                    names[index++] = name;
+                }
+
+                Names = names;
+                Dictionary = dictionary;
+            }
         }
     }
 }

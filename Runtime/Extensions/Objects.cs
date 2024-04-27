@@ -1,9 +1,8 @@
 using System.Diagnostics;
-using Dythervin.Core.Utils;
 using UnityEditor;
 using UnityEngine;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static class Objects
     {

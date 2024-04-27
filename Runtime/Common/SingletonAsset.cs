@@ -1,17 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using Dythervin.Core.Extensions;
-using Dythervin.Core.Utils;
-using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Scripting;
-#if ODIN_INSPECTOR && UNITY_EDITOR
-#endif
 
-namespace Dythervin.Core
+namespace Dythervin
 {
     using SO = ScriptableObject;
 
@@ -21,19 +12,7 @@ namespace Dythervin.Core
         where TImpl : SingletonAsset<T, TImpl>, T, new()
     {
         private static bool _loaded;
-
         private static TImpl _instance;
-
-        private static readonly string Path = GetPath;
-
-        private static readonly string Name = $"{typeof(TImpl).Name}";
-
-        private static readonly string AssetFolderPath = $"Assets/Resources/{Path}";
-
-        private static readonly string FullPath = $"{AssetFolderPath}/{Name}.asset";
-
-        private static readonly string FullResourcesPath = $"{Path}/{Name}";
-
         private bool _initialized;
 
         public static T Instance
@@ -48,61 +27,15 @@ namespace Dythervin.Core
             }
         }
 
-        internal static T InstanceChecked
-        {
-            get
-            {
-                Load();
-                return Instance;
-            }
-        }
-
-        private static string GetPath
-        {
-            get
-            {
-                var attribute = typeof(TImpl).GetCustomAttribute<SingletonAssetAttribute>();
-                return attribute != null ? attribute.resourcePath : SingletonAssetAttribute.DefaultPath;
-            }
-        }
-
-        private static TImpl LoadAtPath =>
-            Resources.Load<TImpl>(FullResourcesPath); // ReSharper disable Unity.PerformanceAnalysis
-
         protected static void TryLoad()
         {
             if (_loaded)
                 return;
 
-            Load();
-        }
-
-        // ReSharper disable Unity.PerformanceAnalysis
-        internal static void Load()
-        {
-#if UNITY_EDITOR
-            if (!File.Exists(FullPath))
+            if (SingletonAssetHelper.TryLoad(out TImpl obj))
             {
-                var instance = CreateInstance<TImpl>();
-                if (!Directory.Exists(AssetFolderPath))
-                    Directory.CreateDirectory(new DirectoryInfo(AssetFolderPath).FullName);
-
-                if (!instance)
-                    return;
-
-                AssetDatabase.CreateAsset(instance, FullPath);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-                instance.OnCreated();
-                DDebug.Log($"{typeof(TImpl).Name} Created");
-                return;
+                SetInstance(obj);
             }
-#endif
-            SetInstance(LoadAtPath);
-        }
-
-        protected virtual void OnCreated()
-        {
         }
 
         protected void OnEnable()
@@ -119,23 +52,26 @@ namespace Dythervin.Core
                 OnEnabled();
             }
 #if UNITY_EDITOR
-            else
+            else if (typeof(TImpl).TryGetCustomAttribute(out SingletonAssetPathAttribute attribute))
             {
                 if (EditorUtility.IsPersistent(_instance))
                 {
-                    string currentPath = AssetDatabase.GetAssetPath(this);
-                    if (string.IsNullOrEmpty(currentPath) || currentPath == FullPath)
+                    if (attribute.TryGetFullPath(out var fullPath))
                     {
-                        EditorUtility.CopySerialized(_instance, this);
-                        AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(_instance));
-                    }
-                    else
-                    {
-                        EditorUtility.CopySerialized(this, _instance);
-                        if (EditorUtility.IsPersistent(this))
-                            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(this));
+                        string currentPath = AssetDatabase.GetAssetPath(this);
+                        if (string.IsNullOrEmpty(currentPath) || currentPath == fullPath)
+                        {
+                            EditorUtility.CopySerialized(_instance, this);
+                            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(_instance));
+                        }
                         else
-                            DestroyImmediate(this);
+                        {
+                            EditorUtility.CopySerialized(this, _instance);
+                            if (EditorUtility.IsPersistent(this))
+                                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(this));
+                            else
+                                DestroyImmediate(this);
+                        }
                     }
                 }
                 else
@@ -179,38 +115,38 @@ namespace Dythervin.Core
     {
     }
 
-    internal sealed class SingletonAsset : SingletonAsset<SingletonAsset>
-    {
-#if ODIN_INSPECTOR && UNITY_EDITOR
-        [ReadOnly]
-#endif
-        [Preserve]
-        [SerializeField]
-        private SO[] singletons;
-
-#if UNITY_EDITOR
-        [UnityEditor.Callbacks.DidReloadScripts]
-        [MenuItem("Tools/SingletonAssets")]
-#if ODIN_INSPECTOR && UNITY_EDITOR
-        [Button]
-#endif
-        private static void Resolve()
-        {
-            InstanceChecked.singletons = TypeHelper.ScriptableObjects
-                .Get(type => type.IsInstantiatable() && !type.IsEnum && !type.IsPrimitive &&
-                             typeof(SingletonAsset<,>).IsSubclassOfRawGeneric(type)).Select(type =>
-                    (SO)type.GetProperty(nameof(InstanceChecked),
-                        BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic |
-                        BindingFlags.FlattenHierarchy).GetValue(null)).ToArray();
-
-            Instance.Dirty();
-        }
-#endif
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-        private static void OnRuntimeMethodLoad()
-        {
-            TryLoad();
-        }
-    }
+//     internal sealed class SingletonAsset : SingletonAsset<SingletonAsset>
+//     {
+// #if ODIN_INSPECTOR
+//         [ReadOnly]
+// #endif
+//         [Preserve]
+//         [SerializeField]
+//         private SO[] singletons;
+//
+// #if UNITY_EDITOR
+//         [UnityEditor.Callbacks.DidReloadScripts]
+//         [MenuItem("Tools/SingletonAssets")]
+// #if ODIN_INSPECTOR
+//         [Button]
+// #endif
+//         private static void Resolve()
+//         {
+//             InstanceChecked.singletons = TypeHelper.ScriptableObjects
+//                 .Get(type => type.IsInstantiatable() && !type.IsEnum && !type.IsPrimitive &&
+//                              typeof(SingletonAsset<,>).IsSubclassOfRawGeneric(type)).Select(type =>
+//                     (SO)type.GetProperty(nameof(InstanceChecked),
+//                         BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic |
+//                         BindingFlags.FlattenHierarchy).GetValue(null)).ToArray();
+//
+//             Instance.Dirty();
+//         }
+// #endif
+//
+//         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+//         private static void OnRuntimeMethodLoad()
+//         {
+//             TryLoad();
+//         }
+//     }
 }

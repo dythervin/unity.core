@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 
-namespace Dythervin.Core.Editor
+namespace Dythervin.Editor
 {
     public abstract class EditorPref<T>
     {

@@ -1,30 +1,33 @@
 ﻿using System;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using Dythervin.Core.Extensions;
 using UnityEditor;
 
-namespace Dythervin.Core.Editor
+namespace Dythervin.Editor
 {
     public static class SerializedPropertyExtensions
     {
-        public static object GetValue(this SerializedProperty property, bool getContainer = false)
+        public static object GetValue(this SerializedProperty property)
         {
-            return GetValue(property, out _, getContainer);
+            return GetValue(property, out _, out _);
         }
 
-        public static object GetValue(this SerializedProperty property, out FieldInfo fieldInfo,
-            bool getContainer = false)
+        public static object GetValue(this SerializedProperty property, out object obj)
         {
-            object instance = property.serializedObject.targetObject;
+            return GetValue(property, out _, out obj);
+        }
+
+        public static object GetValue(this SerializedProperty property, out FieldInfo fieldInfo, out object obj)
+        {
+            obj = property.serializedObject.targetObject;
             fieldInfo = null;
             var paths = property.propertyPath.Split('.');
             for (int i = 0; i < paths.Length; i++)
             {
-                var type = instance.GetType();
+                var type = obj.GetType();
                 string fieldName = paths[i];
                 fieldInfo = type.GetFieldExt(fieldName,
-                    BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic | BindingFlags.Public);
+                    BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic |
+                    BindingFlags.Public);
 
                 if (fieldInfo == null)
                 {
@@ -36,26 +39,28 @@ namespace Dythervin.Core.Editor
                 {
                     //Skip "Array"
                     i += 2;
-                    if (getContainer && i >= paths.Length - 1)
-                        return instance;
+                    // if (getContainer && i >= paths.Length - 1)
+                    //     return instance;
 
-                    Array array = (Array)fieldInfo.GetValue(instance);
+                    Array array = (Array)(obj = fieldInfo.GetValue(obj));
                     var indexString = paths[i];
                     indexString = indexString.Remove("data[").Remove("]");
                     int index = int.Parse(indexString);
                     //Should be data['index']
-                    instance = array.GetValue(index);
+                    if (i >= paths.Length - 1)
+                        return array.GetValue(index);
                 }
                 else
                 {
-                    if (getContainer && i >= paths.Length - 1)
-                        return instance;
+                    // if (getContainer && i >= paths.Length - 1)
+                    //     return instance;
 
-                    instance = fieldInfo.GetValue(instance);
+                    if (i >= paths.Length - 1)
+                        return fieldInfo.GetValue(obj);
                 }
             }
 
-            return instance;
+            return property.serializedObject.targetObject;
         }
 
         public static void SetValue(this SerializedProperty property, object value)
@@ -67,7 +72,8 @@ namespace Dythervin.Core.Editor
                 var type = instance.GetType();
                 string fieldName = paths[i];
                 FieldInfo fieldInfo = type.GetFieldExt(fieldName,
-                    BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic | BindingFlags.Public);
+                    BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic |
+                    BindingFlags.Public);
 
                 if (fieldInfo == null)
                     return;
@@ -191,8 +197,13 @@ namespace Dythervin.Core.Editor
                     break;
 
                 case SerializedPropertyType.Gradient:
+                    serializedProperty.gradientValue = default;
+                    break;
                 case SerializedPropertyType.Generic:
+                    serializedProperty.boxedValue = default;
+                    break;
                 case SerializedPropertyType.Quaternion:
+
                 case SerializedPropertyType.FixedBufferSize:
                 case SerializedPropertyType.ManagedReference:
                 case SerializedPropertyType.Hash128:
@@ -201,82 +212,56 @@ namespace Dythervin.Core.Editor
             }
         }
 
-        public static object GetAutoValue(this SerializedProperty serializedProperty)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serializedProperty"></param>
+        /// <param name="condition">can be field, method or property name</param>
+        /// <returns></returns>
+        public static bool CheckCondition(this SerializedProperty serializedProperty, string condition)
         {
-            switch (serializedProperty.propertyType)
+            serializedProperty.GetValue(out var obj);
+            if (obj != null)
             {
-                case SerializedPropertyType.Integer:
-                    return serializedProperty.intValue;
-
-                case SerializedPropertyType.Boolean:
-                    return serializedProperty.boolValue;
-
-                case SerializedPropertyType.Float:
-                    return serializedProperty.floatValue;
-
-                case SerializedPropertyType.String:
-                    return serializedProperty.stringValue;
-
-                case SerializedPropertyType.Color:
-                    return serializedProperty.colorValue;
-
-                case SerializedPropertyType.ObjectReference:
-                    return serializedProperty.objectReferenceValue;
-
-                case SerializedPropertyType.LayerMask:
-                    return serializedProperty.intValue;
-
-                case SerializedPropertyType.Enum:
-                    return serializedProperty.enumValueIndex;
-
-                case SerializedPropertyType.Vector2:
-                    return serializedProperty.vector2Value;
-
-                case SerializedPropertyType.Vector3:
-                    return serializedProperty.vector3Value;
-
-                case SerializedPropertyType.Vector4:
-                    return serializedProperty.vector4Value;
-
-                case SerializedPropertyType.Rect:
-                    return serializedProperty.rectValue;
-
-                case SerializedPropertyType.ArraySize:
-                    return serializedProperty.intValue;
-
-                case SerializedPropertyType.Character:
-                    return serializedProperty.intValue;
-
-                case SerializedPropertyType.AnimationCurve:
-                    return serializedProperty.animationCurveValue;
-
-                case SerializedPropertyType.Bounds:
-                    return serializedProperty.boundsValue;
-
-                case SerializedPropertyType.ExposedReference:
-                    return serializedProperty.exposedReferenceValue;
-
-                case SerializedPropertyType.Vector2Int:
-                    return serializedProperty.vector2IntValue;
-
-                case SerializedPropertyType.Vector3Int:
-                    return serializedProperty.vector3IntValue;
-
-                case SerializedPropertyType.RectInt:
-                    return serializedProperty.rectIntValue;
-
-                case SerializedPropertyType.BoundsInt:
-                    return serializedProperty.boundsIntValue;
-
-                case SerializedPropertyType.Gradient:
-                case SerializedPropertyType.Generic:
-                case SerializedPropertyType.Quaternion:
-                case SerializedPropertyType.FixedBufferSize:
-                case SerializedPropertyType.ManagedReference:
-                case SerializedPropertyType.Hash128:
-                default:
-                    throw new ArgumentOutOfRangeException();
+                dynamic result = GetConditionValue(obj, condition);
+                try
+                {
+                    return (bool)result;
+                }
+                catch
+                {
+                    return result != null;
+                }
             }
+
+            return false;
+        }
+
+        private static dynamic GetConditionValue(object obj, string condition)
+        {
+            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic |
+                                              BindingFlags.Static | BindingFlags.FlattenHierarchy;
+
+            Type objType = obj.GetType();
+            var property = objType.GetPropertyExt(condition, bindingFlags);
+            if (property != null)
+            {
+                return property.GetValue(obj);
+            }
+
+            var method = objType.GetMethodExt(condition, bindingFlags);
+            if (method != null)
+            {
+                return method.Invoke(obj, null);
+            }
+
+            var field = objType.GetFieldExt(condition, bindingFlags);
+            if (field != null)
+            {
+                return field.GetValue(obj);
+            }
+
+            return null;
         }
     }
 }

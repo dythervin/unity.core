@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static partial class CollectionsExtensions
     {

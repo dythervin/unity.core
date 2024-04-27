@@ -1,4 +1,4 @@
-﻿namespace Dythervin.Core
+﻿namespace Dythervin
 {
     public interface IListener
     {

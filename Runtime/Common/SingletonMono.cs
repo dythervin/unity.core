@@ -1,7 +1,6 @@
-using Dythervin.Core.Utils;
 using UnityEngine;
 
-namespace Dythervin.Core
+namespace Dythervin
 {
     public abstract class SingletonMonoBase<T> : MonoBehaviour
         where T : SingletonMonoBase<T>
@@ -25,7 +24,7 @@ namespace Dythervin.Core
             else
             {
                 Destroy(this);
-                DDebug.LogWarning($"Trying to instantiate second instance of {typeof(T)}");
+                Logger.Warn.Log($"Trying to instantiate second instance of {typeof(T)}");
             }
         }
 

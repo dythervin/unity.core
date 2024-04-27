@@ -1,4 +1,4 @@
-﻿namespace Dythervin.Core
+﻿namespace Dythervin
 {
     [System.Serializable]
     public struct Wrapper<T>

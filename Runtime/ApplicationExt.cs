@@ -1,12 +1,13 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
-namespace Dythervin.Core
+namespace Dythervin
 {
     public static class ApplicationExt
     {
         public static bool IsQuitting { get; private set; }
-        public static event System.Action OnEnterPlayMode;
+        public static event Action? OnEnterPlayMode;
 #if UNITY_EDITOR
         public static bool IsPlaying { get; private set; }
 #else
@@ -46,4 +47,6 @@ namespace Dythervin.Core
         }
 #endif
     }
+
+// ReSharper disable once EmptyNamespace
 }

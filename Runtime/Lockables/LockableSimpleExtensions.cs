@@ -1,17 +1,15 @@
-﻿using Dythervin.Core.Lockables;
-
-namespace Dythervin.Core
+﻿namespace Dythervin
 {
     public static class LockableSimpleExtensions
     {
         public static ILockableSimple Lock(this ILockableSimple lockable)
         {
-            return lockable.SetLock(true);
+            return lockable.ForceLock(true);
         }
 
         public static ILockableSimple Unlock(this ILockableSimple lockable)
         {
-            return lockable.SetLock(false);
+            return lockable.ForceLock(false);
         }
     }
 }

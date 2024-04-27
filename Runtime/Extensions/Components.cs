@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static class Components
     {

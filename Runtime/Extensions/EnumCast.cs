@@ -1,12 +1,11 @@
 ﻿using System;
 using Unity.Collections.LowLevel.Unsafe;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static class EnumCast
     {
         private static byte AsByteUnsafe<TEnum>(this TEnum value)
-            where TEnum : unmanaged, Enum
         {
             return UnsafeUtility.As<TEnum, byte>(ref value);
         }
@@ -40,17 +39,11 @@ namespace Dythervin.Core.Extensions
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
-            if (size <= sizeof(byte))
-                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
-                case 2:
-                    return AsUnsafe<TEnum>((ushort)value);
-                case 4:
-                    return AsUnsafe<TEnum>((uint)value);
-                case 8:
-                    return AsUnsafe<TEnum>((ulong)value);
+                case sizeof(byte):
+                    return AsUnsafe<TEnum>(checked((byte)value));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
@@ -81,7 +74,7 @@ namespace Dythervin.Core.Extensions
 
             switch (size)
             {
-                case 1:
+                case sizeof(byte):
                     return AsByteUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
@@ -92,15 +85,13 @@ namespace Dythervin.Core.Extensions
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
-            if (size <= sizeof(ushort))
-                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
-                case 4:
-                    return AsUnsafe<TEnum>((uint)value);
-                case 8:
-                    return AsUnsafe<TEnum>((ulong)value);
+                case sizeof(ushort):
+                    return AsUnsafe<TEnum>(checked((ushort)value));
+                case sizeof(byte):
+                    return AsUnsafe<TEnum>(checked((byte)value));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
@@ -131,9 +122,9 @@ namespace Dythervin.Core.Extensions
 
             switch (size)
             {
-                case 1:
+                case sizeof(byte):
                     return AsByteUnsafe(value);
-                case 2:
+                case sizeof(ushort):
                     return AsUshortUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
@@ -144,13 +135,15 @@ namespace Dythervin.Core.Extensions
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
-            if (size <= sizeof(uint))
-                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
-                case 8:
-                    return AsUnsafe<TEnum>((ulong)value);
+                case sizeof(uint):
+                    return AsUnsafe<TEnum>(checked((uint)value));
+                case sizeof(ushort):
+                    return AsUnsafe<TEnum>(checked((ushort)value));
+                case sizeof(byte):
+                    return AsUnsafe<TEnum>(checked((byte)value));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
@@ -181,11 +174,11 @@ namespace Dythervin.Core.Extensions
 
             switch (size)
             {
-                case 1:
+                case sizeof(byte):
                     return AsByteUnsafe(value);
-                case 2:
+                case sizeof(ushort):
                     return AsUshortUnsafe(value);
-                case 4:
+                case sizeof(uint):
                     return AsUintUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
@@ -196,11 +189,17 @@ namespace Dythervin.Core.Extensions
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
-            if (size <= sizeof(ulong))
-                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
+                case sizeof(ulong):
+                    return AsUnsafe<TEnum>(checked((ulong)value));
+                case sizeof(uint):
+                    return AsUnsafe<TEnum>(checked((uint)value));
+                case sizeof(ushort):
+                    return AsUnsafe<TEnum>(checked((ushort)value));
+                case sizeof(byte):
+                    return AsUnsafe<TEnum>(checked((byte)value));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
@@ -240,17 +239,11 @@ namespace Dythervin.Core.Extensions
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
-            if (size <= sizeof(sbyte))
-                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
-                case 2:
-                    return AsUnsafe<TEnum>((short)value);
-                case 4:
-                    return AsUnsafe<TEnum>((int)value);
-                case 8:
-                    return AsUnsafe<TEnum>((long)value);
+                case sizeof(sbyte):
+                    return AsUnsafe<TEnum>(checked((sbyte)value));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
@@ -281,7 +274,7 @@ namespace Dythervin.Core.Extensions
 
             switch (size)
             {
-                case 1:
+                case sizeof(sbyte):
                     return AsSbyteUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
@@ -292,15 +285,13 @@ namespace Dythervin.Core.Extensions
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
-            if (size <= sizeof(short))
-                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
-                case 4:
-                    return AsUnsafe<TEnum>((int)value);
-                case 8:
-                    return AsUnsafe<TEnum>((long)value);
+                case sizeof(short):
+                    return AsUnsafe<TEnum>(checked((short)value));
+                case sizeof(sbyte):
+                    return AsUnsafe<TEnum>(checked((sbyte)value));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
@@ -331,9 +322,9 @@ namespace Dythervin.Core.Extensions
 
             switch (size)
             {
-                case 1:
+                case sizeof(sbyte):
                     return AsSbyteUnsafe(value);
-                case 2:
+                case sizeof(short):
                     return AsShortUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
@@ -344,13 +335,15 @@ namespace Dythervin.Core.Extensions
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
-            if (size <= sizeof(int))
-                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
-                case 8:
-                    return AsUnsafe<TEnum>((long)value);
+                case sizeof(int):
+                    return AsUnsafe<TEnum>(checked((int)value));
+                case sizeof(short):
+                    return AsUnsafe<TEnum>(checked((short)value));
+                case sizeof(sbyte):
+                    return AsUnsafe<TEnum>(checked((sbyte)value));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }
@@ -381,11 +374,11 @@ namespace Dythervin.Core.Extensions
 
             switch (size)
             {
-                case 1:
+                case sizeof(sbyte):
                     return AsSbyteUnsafe(value);
-                case 2:
+                case sizeof(short):
                     return AsShortUnsafe(value);
-                case 4:
+                case sizeof(int):
                     return AsIntUnsafe(value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
@@ -396,11 +389,17 @@ namespace Dythervin.Core.Extensions
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
-            if (size <= sizeof(long))
-                return AsUnsafe<TEnum>(value);
 
             switch (size)
             {
+                case sizeof(long):
+                    return AsUnsafe<TEnum>(checked((long)value));
+                case sizeof(int):
+                    return AsUnsafe<TEnum>(checked((int)value));
+                case sizeof(short):
+                    return AsUnsafe<TEnum>(checked((short)value));
+                case sizeof(sbyte):
+                    return AsUnsafe<TEnum>(checked((sbyte)value));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(size));
             }

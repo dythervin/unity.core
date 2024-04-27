@@ -1,6 +1,5 @@
 ﻿<#@ template language="C#" #>
 <#@ output extension=".cs" #>
-<#@ import namespace="System.Runtime.InteropServices" #>
 <#
     (Type type, string name)[] unsigned =
     {
@@ -16,15 +15,15 @@
 
     string Capitalized(string name) => name[0].ToString().ToUpper() + name.Substring(1);
 
-    string GetToIntName(string name) => "To" + Capitalized(name);
+    string GetAsIntName(string name) => "As" + Capitalized(name);
 
-    string GetToName() => "To";
+    string GetAsName() => "As";
 
-    string GetToNameUnsafe(string name) => GetToIntName(name) + "Unsafe";
+    string GetToNameUnsafe(string name) => GetAsIntName(name) + "Unsafe";
 
-    string GetFromNameUnsafe() => GetToName() + "Unsafe";
+    string GetFromNameUnsafe() => GetAsName() + "Unsafe";
 
-    void Mm((Type type, string name)[] array)
+    void GenerateMembers((Type type, string name)[] array)
     {
         for (int i = 0; i < array.Length; i++)
         {
@@ -37,7 +36,7 @@
             return UnsafeUtility.As<TEnum, <#= name #>>(ref value);
         }
 
-        public static <#= name #> <#= GetToIntName(name) #>(this Enum value)
+        public static <#= name #> <#= GetAsIntName(name) #>(this Enum value)
         {
             return Convert.To<#= data.type.Name #>(value);
         }
@@ -48,7 +47,7 @@
             return UnsafeUtility.As<<#= name #>, TEnum>(ref value);
         }
 
-        public static <#= name #> <#= GetToIntName(name) #><TEnum>(this TEnum value)
+        public static <#= name #> <#= GetAsIntName(name) #><TEnum>(this TEnum value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
@@ -62,7 +61,7 @@
             {
                 var otherData = array[i1];
 #>
-                case <#= Marshal.SizeOf(otherData.type) #>:
+                case sizeof(<#=otherData.name#>):
                     return <#= GetToNameUnsafe(otherData.name) #>(value);
 <#
             }
@@ -72,22 +71,20 @@
             }
         }
 
-        public static TEnum <#= GetToName() #><TEnum>(<#= name #> value)
+        public static TEnum <#= GetAsName() #><TEnum>(<#= name #> value)
             where TEnum : unmanaged, Enum
         {
             int size = UnsafeUtility.SizeOf<TEnum>();
-            if (size <= sizeof(<#= data.name #>))
-                return <#= GetFromNameUnsafe() #><TEnum>(value);
 
             switch (size)
             {
 <#
-            for (int i1 = i + 1; i1 < array.Length; i1++)
+            for (int i1 = i; i1 >= 0; i1--)
             {
                 var otherData = array[i1];
 #>
-                case <#= Marshal.SizeOf(otherData.type) #>:
-                    return <#= GetFromNameUnsafe() #><TEnum>((<#= otherData.name #>)value);
+                case sizeof(<#=otherData.name#>):
+                    return <#= GetFromNameUnsafe() #><TEnum>(checked((<#= otherData.name #>)value));
 <#
             }
 #>
@@ -103,13 +100,13 @@
 using System;
 using Unity.Collections.LowLevel.Unsafe;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin.Core
 {
     public static class EnumCast
     {
 <#
-    Mm(unsigned);
-    Mm(signed);
+    GenerateMembers(unsigned);
+    GenerateMembers(signed);
 #>
     }
 }

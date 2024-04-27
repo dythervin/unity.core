@@ -1,50 +1,13 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static class StringExtensions
     {
-        private const string Intend = "    ";
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static char GetLast(this StringBuilder builder)
-        {
-            return builder[builder.Length - 1];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static StringBuilder PopLast(this StringBuilder builder, int count = 1)
-        {
-            return builder.Remove(builder.Length - count, count);
-        }
-
-        public static StringBuilder RemoveFrom(this StringBuilder stringBuilder, int index)
-        {
-            return stringBuilder.Remove(index, stringBuilder.Length - index);
-        }
-
-        public static StringBuilder AppendIntend(this StringBuilder stringBuilder, int intendLevel)
-        {
-            stringBuilder.EnsureCapacity(stringBuilder.Capacity + intendLevel * Intend.Length);
-            for (int i = 0; i < intendLevel; i++)
-            {
-                stringBuilder.Append(Intend);
-            }
-
-            return stringBuilder;
-        }
-
-        public static string ToStringAndClear(this StringBuilder stringBuilder)
-        {
-            string str = stringBuilder.ToString();
-            stringBuilder.Clear();
-            return str;
-        }
-
-        public static string FirstCharToUpper(this string input)
+        public static string FirstCharToUpper([NotNull] this string input)
         {
             return input switch
             {
@@ -55,30 +18,36 @@ namespace Dythervin.Core.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string Remove(this string value, string toRemove)
+        public static string Remove([NotNull] this string value, [NotNull] string toRemove)
         {
             return value.Replace(toRemove, string.Empty);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string RemoveSides(this string value)
+        public static string RemoveStart([NotNull] this string value, [NotNull] string toRemove)
+        {
+            return value.StartsWith(toRemove) ? value.Substring(toRemove.Length) : value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string RemoveSides([NotNull] this string value)
         {
             return value.Remove("left").Remove("right");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static char GetLast(this string str)
+        public static char GetLast([NotNull] this string str)
         {
             return str[str.Length - 1];
         }
 
-        public static string SplitCamelCase(this string str)
+        public static string SplitCamelCase([NotNull] this string str)
         {
             return Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string RemoveDigits(this string str)
+        public static string RemoveDigits([NotNull] this string str)
         {
             return Regex.Replace(str, @"[\d-]", string.Empty);
         }

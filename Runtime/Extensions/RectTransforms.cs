@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static class RectTransforms
     {

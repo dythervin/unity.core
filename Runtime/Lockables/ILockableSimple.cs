@@ -1,7 +1,7 @@
-﻿namespace Dythervin.Core.Lockables
+﻿namespace Dythervin
 {
     public interface ILockableSimple : ILockable
     {
-        ILockableSimple SetLock(bool isLocked);
+        ILockableSimple ForceLock(bool isLocked);
     }
 }

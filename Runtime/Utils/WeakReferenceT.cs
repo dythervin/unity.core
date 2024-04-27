@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 
-namespace Dythervin.Core.Utils
+namespace Dythervin
 {
     public class WeakReferenceT<T> : WeakReference
         where T : class

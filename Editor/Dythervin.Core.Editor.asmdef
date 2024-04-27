@@ -1,8 +1,9 @@
 {
-    "name": "Dythervin.Core.Editor",
-    "rootNamespace": "Dythervin.Core",
+    "name": "Dythervin.Editor",
+    "rootNamespace": "Dythervin",
     "references": [
-        "GUID:0d2722be3221441990b3d439a49d3d00"
+        "GUID:0d2722be3221441990b3d439a49d3d00",
+        "GUID:560b04d1a97f54a4e82edc0cbbb69285"
     ],
     "includePlatforms": [
         "Editor"
@@ -11,7 +12,7 @@
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

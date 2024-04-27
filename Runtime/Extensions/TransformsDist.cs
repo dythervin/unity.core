@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static class TransformsDist
     {

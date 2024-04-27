@@ -1,4 +1,4 @@
-﻿namespace Dythervin.Core.Utils
+﻿namespace Dythervin
 {
     public static class MicsExtensions
     {

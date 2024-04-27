@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Dythervin.Core.Extensions;
 using NUnit.Framework;
 
-namespace Dythervin.Core.Tests
+namespace Dythervin.Tests
 {
     [TestFixture]
     public static class EnumTests

@@ -2,7 +2,7 @@
 using UnityEngine;
 using Random = System.Random;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static partial class RandomExtensions
     {

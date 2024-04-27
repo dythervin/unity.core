@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dythervin.Core.Attributes
+namespace Dythervin
 {
     /// <summary>
     /// Draws generic type with 1 type parameter

@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using UnityEngine.Assertions;
 
-namespace Dythervin.Core.Utils
+namespace Dythervin
 {
     public static class DAssert
     {
@@ -17,7 +17,7 @@ namespace Dythervin.Core.Utils
 
         public static void MainThread()
         {
-            if (!ThreadExt.IsMain)
+            if (!ThreadHelper.IsMain)
                 throw new Exception("Can be called on main thread only");
         }
 
@@ -27,7 +27,7 @@ namespace Dythervin.Core.Utils
                 throw new Exception("Cannot be called while quitting play mode");
         }
 
-        public static void IsNotNull(object value, string message = "")
+        public static void IsNotNull(object? value, string message = "")
         {
             if (value == null || value is UnityEngine.Object obj && obj == null)
                 throw new AssertionException("Value is null", message);
@@ -40,11 +40,23 @@ namespace Dythervin.Core.Utils
 
             throw new AssertionException("Value is not null", message);
         }
-        
+
         public static void IsTrue(bool value, string message = "")
         {
             if (!value)
                 throw new AssertionException("Value is not null", message);
+        }
+
+        public static void IsFalse(bool value, string message = "")
+        {
+            if (value)
+                throw new AssertionException("Value is not null", message);
+        }
+
+        public static void IsNonBoxed(object value, string message = "")
+        {
+            if (value is ValueType)
+                throw new AssertionException($"Value is boxed ({value.GetType()})", message);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace Dythervin.Core.Utils
+namespace Dythervin
 {
     internal class CoroutineRunnerInternal : SingletonMonoAuto<CoroutineRunnerInternal>
     {

@@ -1,53 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     public static partial class CollectionsExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Reset<T>(this T[] list)
-        {
-            for (int i = 0; i < list.Length; i++)
-            {
-                list[i] = default;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Contains<T>(this T[] list, T value)
-        {
-            return Array.IndexOf(list, value) >= 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int IndexOf<T>(this IReadOnlyList<T> list, T value, int startIndex = 0)
-        {
-            int num = startIndex + list.Count;
-            for (int index = startIndex; index < num; ++index)
-            {
-                if (EqualityComparer<T>.Default.Equals(list[index], value))
-                    return index;
-            }
-
-            return -1;
-        }
-
-        public static void EnsureCapacity<TValue>(this List<TValue> list, int value)
-        {
-            if (list.Capacity < value)
-                list.Capacity = value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetLast<T>(this IReadOnlyList<T> list)
-        {
-            return list[list.Count - 1];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool AddB<T>(this ICollection<T> list, T value)
+        public static bool TryAdd<T>(this ICollection<T> list, T value)
         {
             int count = list.Count;
             list.Add(value);
@@ -55,7 +14,7 @@ namespace Dythervin.Core.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool RemoveB<T>(this ICollection<T> list, T value)
+        public static bool TryRemove<T>(this ICollection<T> list, T value)
         {
             int count = list.Count;
             list.Remove(value);
@@ -84,38 +43,6 @@ namespace Dythervin.Core.Extensions
         public static bool Remove<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
             return dictionary.Remove(new KeyValuePair<TKey, TValue>(key, value));
-        }
-
-        public static T PopAt<T>(this List<T> list, int index)
-        {
-            T item = list[index];
-            list.RemoveAt(index);
-            return item;
-        }
-
-        public static T PopLast<T>(this IList<T> list)
-        {
-            return PopLast(list, out _);
-        }
-
-        public static bool TryPopLast<T>(this IList<T> list, out T value)
-        {
-            if (list.Count == 0)
-            {
-                value = default;
-                return false;
-            }
-
-            value = PopLast(list, out _);
-            return true;
-        }
-
-        public static T PopLast<T>(this IList<T> list, out int index)
-        {
-            index = list.Count - 1;
-            T item = list[index];
-            list.RemoveAt(index);
-            return item;
         }
 
 #if !NETSTANDARD2_1_OR_GREATER

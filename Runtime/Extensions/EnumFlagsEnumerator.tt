@@ -1,0 +1,172 @@
+﻿<#@ template language="C#" #>
+<#@ output extension=".cs" #>
+<#
+    (Type type, string name)[] unsigned =
+    {
+        (typeof(byte), "byte"), (typeof(ushort), "ushort"), (typeof(uint), "uint"),
+        (typeof(ulong), "ulong")
+    };
+
+    (Type type, string name)[] signed = { (typeof(sbyte), "sbyte"), (typeof(short), "short"), (typeof(int), "int"), (typeof(long), "long") };
+
+    string Capitalized(string name) => name[0].ToString().ToUpper() + name.Substring(1);
+
+    void GenerateExtension((Type type, string name)[] array)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            var data = array[i];
+
+            string name = data.name;
+            Type type = data.type;
+#>
+        public static EnumFlags<#= type.Name #>Enumerable<TEnum> ToEnumerable<#= type.Name #><TEnum>(this TEnum @enum)
+            where TEnum : unmanaged, Enum
+        {
+            return new EnumFlags<#= type.Name #>Enumerable<TEnum>(@enum);
+        }
+
+<#
+        }
+    }
+
+    void GenerateStructs((Type type, string name)[] array)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            var data = array[i];
+
+            string name = data.name;
+            Type type = data.type;
+#>
+    public struct EnumFlags<#= type.Name #>Enumerator<TEnum> : IEnumerator<TEnum>
+        where TEnum : unmanaged, Enum
+    {
+        private EnumFlags<#= type.Name #>Enumerator _enumerator;
+
+        public EnumFlags<#= type.Name #>Enumerator(TEnum value)
+        {
+            _enumerator = new EnumFlags<#= type.Name #>Enumerator(value.As<#= Capitalized(name) #>());
+        }
+
+        public bool MoveNext()
+        {
+            return _enumerator.MoveNext();
+        }
+
+        public void Reset()
+        {
+            _enumerator.Reset();
+        }
+
+        public TEnum Current => EnumCast.As<TEnum>(_enumerator.Current);
+
+        object IEnumerator.Current => Current;
+
+        public void Dispose()
+        {
+            _enumerator.Dispose();
+        }
+    }
+
+    public struct EnumFlags<#= type.Name #>Enumerator : IEnumerator<<#= name #>>
+    {
+        private readonly <#= name #> _value;
+        private <#= name #> _left;
+        private <#= name #> _current;
+
+        public <#= name #> Current
+        {
+            get
+            {
+                if (_current != 0)
+                {
+                    return _current;
+                }
+
+                throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        object IEnumerator.Current => Current;
+
+        public EnumFlags<#= type.Name #>Enumerator(<#= name #> value)
+        {
+            _value = value;
+            _left = _value;
+            _current = 0;
+        }
+
+        public bool MoveNext()
+        {
+            if (_left == 0)
+            {
+                return false;
+            }
+
+            <#= name #> left = _left;
+            _left &= (<#= name #>)(_left - 1);
+            _current = (<#= name #>)(left - _left);
+            return true;
+        }
+
+        public void Reset()
+        {
+            _left = _value;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+
+    public readonly struct EnumFlags<#= type.Name #>Enumerable<TEnum> : IEnumerable<TEnum>
+        where TEnum : unmanaged, Enum
+    {
+        private readonly TEnum _enum;
+
+        public EnumFlags<#= type.Name #>Enumerable(TEnum @enum)
+        {
+            _enum = @enum;
+        }
+
+        IEnumerator<TEnum> IEnumerable<TEnum>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public EnumFlags<#= type.Name #>Enumerator<TEnum> GetEnumerator()
+        {
+            return new EnumFlags<#= type.Name #>Enumerator<TEnum>(_enum);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+<#
+        }
+    }
+#>
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Dythervin.Core
+{
+<#
+    GenerateStructs(unsigned);
+    GenerateStructs(signed);
+#>
+
+    public static class EnumFlagsExtensions
+    {
+<#
+    GenerateExtension(unsigned);
+    GenerateExtension(signed);
+#>
+    }
+}

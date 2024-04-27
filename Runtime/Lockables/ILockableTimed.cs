@@ -1,6 +1,6 @@
 ﻿using Unity.Mathematics;
 
-namespace Dythervin.Core.Lockables
+namespace Dythervin
 {
     public interface ILockableTimed : ILockable
     {

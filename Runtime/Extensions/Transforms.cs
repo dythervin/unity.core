@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
-namespace Dythervin.Core.Extensions
+namespace Dythervin
 {
     [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
     public static class Transforms
@@ -37,28 +37,6 @@ namespace Dythervin.Core.Extensions
             do
             {
                 dictionary.Add(transform.name, transform);
-                for (int i = 0; i < transform.childCount; i++)
-                {
-                    Buffer.Push(transform.GetChild(i));
-                }
-            } while (Buffer.TryPop(out transform));
-        }
-
-        public static void GetNameValues(this Transform transform, Dictionary<int, Transform> dictionary)
-        {
-            Buffer.Clear();
-            do
-            {
-                int key = transform.name.GetHashCode();
-                if (dictionary.ContainsKey(key))
-                {
-                    DDebug.LogError($"Contains {transform.name}", transform);
-                    DDebug.LogError($"   Target", dictionary[transform.name.GetHashCode()]);
-                    continue;
-                }
-
-                dictionary.Add(key, transform);
-
                 for (int i = 0; i < transform.childCount; i++)
                 {
                     Buffer.Push(transform.GetChild(i));
